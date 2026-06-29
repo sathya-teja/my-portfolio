@@ -1,93 +1,46 @@
 export const PROJECTS = [
   {
-    id: 'medigo',
-    title: 'MEDIGO',
-    subtitle: 'Healthcare Intelligence Platform',
-    description:
-      'A full-stack healthcare management platform that streamlines patient-doctor interactions, appointment scheduling, and medical record management with real-time updates.',
-    longDescription:
-      'MEDIGO bridges the gap between patients and healthcare providers. Built with a microservices architecture, it handles thousands of concurrent users while maintaining HIPAA-compliant data security.',
-    features: [
-      'Real-time appointment scheduling',
-      'Secure patient record management',
-      'Doctor-patient messaging system',
-      'Prescription tracking & reminders',
-      'Multi-hospital support',
-    ],
-    tech: ['React', 'Node.js', 'MongoDB', 'Express', 'Socket.io', 'JWT', 'Tailwind CSS'],
-    github: 'https://github.com/',
-    live: null,
-    featured: false,
-    category: 'Full Stack',
-    color: '#38BDF8',
-  },
-  {
     id: 'gesture-mouse',
     title: 'Gesture Virtual Mouse',
-    subtitle: 'AI-Powered Hands-Free Control',
+    subtitle: 'Computer vision · AI',
     description:
-      'A computer vision system that replaces physical mouse input entirely using hand gestures detected through a standard webcam, powered by MediaPipe and OpenCV.',
-    longDescription:
-      'This project demonstrates cutting-edge computer vision applied to human-computer interaction. Using Google\'s MediaPipe framework, the system tracks 21 hand landmarks in real-time to interpret gestures as mouse movements, clicks, and scrolls — no hardware required.',
-    features: [
-      'Real-time 21-point hand landmark detection',
-      'Cursor control via fingertip tracking',
-      'Click, scroll, and drag via gestures',
-      '60fps performance on consumer hardware',
-      'Accessibility-focused design',
-    ],
+      'Replaces physical mouse input using real-time hand gesture recognition via a standard webcam. Tracks 21 hand landmarks through MediaPipe to interpret cursor movement, clicks, scrolls, and drags — no hardware required.',
     tech: ['Python', 'OpenCV', 'MediaPipe', 'PyAutoGUI', 'NumPy'],
     github: 'https://github.com/',
     live: null,
     featured: true,
-    spotlight: true,
-    category: 'AI / Computer Vision',
-    color: '#8B5CF6',
+  },
+  {
+    id: 'medigo',
+    title: 'MEDIGO',
+    subtitle: 'Healthcare platform · Full-stack',
+    description:
+      'Full-stack healthcare management platform streamlining patient-doctor interactions, appointment scheduling, and medical records with real-time updates and a microservices architecture.',
+    tech: ['React', 'Node.js', 'MongoDB', 'Express', 'Socket.io', 'JWT'],
+    github: 'https://github.com/',
+    live: null,
+    featured: false,
   },
   {
     id: 'banking-app',
     title: 'Banking App',
-    subtitle: 'Secure Financial Dashboard',
+    subtitle: 'Fintech · Full-stack',
     description:
-      'A modern banking application with real-time transaction processing, balance tracking, fund transfers, and interactive financial analytics.',
-    longDescription:
-      'Built with security-first principles, this banking application implements multi-layer authentication, encrypted transactions, and real-time notifications. The clean UI presents complex financial data intuitively.',
-    features: [
-      'Multi-factor authentication',
-      'Real-time transaction history',
-      'Instant fund transfers',
-      'Spending analytics dashboard',
-      'Bill payment automation',
-    ],
+      'Secure banking dashboard with multi-factor authentication, real-time transaction processing, fund transfers, and interactive spending analytics.',
     tech: ['React', 'Spring Boot', 'PostgreSQL', 'Redis', 'Docker'],
     github: 'https://github.com/',
     live: null,
     featured: false,
-    category: 'Full Stack',
-    color: '#10B981',
   },
   {
     id: 'movie-booking',
     title: 'Movie Booking App',
-    subtitle: 'Seamless Cinema Experience',
+    subtitle: 'Consumer app · Full-stack',
     description:
-      'An end-to-end movie ticket booking platform with real-time seat selection, payment integration, and QR code-based e-tickets.',
-    longDescription:
-      'This platform provides a seamless cinema booking experience. Users can browse now-showing films, choose their theater, select seats in an interactive visual layout, and receive instant QR code tickets via email.',
-    features: [
-      'Interactive seat map with live availability',
-      'Multiple payment gateway integration',
-      'QR code e-ticket generation',
-      'Movie ratings & reviews',
-      'Admin panel for theater management',
-    ],
+      'End-to-end cinema booking platform with an interactive visual seat map, real-time availability, payment integration, and QR code e-tickets delivered via email.',
     tech: ['React', 'Node.js', 'MongoDB', 'Stripe', 'Nodemailer'],
     github: 'https://github.com/',
     live: null,
     featured: false,
-    category: 'Full Stack',
-    color: '#F59E0B',
   },
 ];
-
-export const FEATURED_PROJECT = PROJECTS.find((p) => p.spotlight);

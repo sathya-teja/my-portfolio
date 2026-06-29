@@ -1,109 +1,92 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NAV_LINKS } from '../data/nav';
-import { cn } from '../utils/cn';
 import { useScrollProgress } from '../hooks/useScrollProgress';
 
 export default function Navbar() {
-  const [scrolled, setScrolled]   = useState(false);
-  const [menuOpen, setMenuOpen]   = useState(false);
-  const [activeSection, setActive] = useState('hero');
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState('');
   const progress = useScrollProgress();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Intersection observer for active section
   useEffect(() => {
-    const sectionIds = NAV_LINKS.map((l) => l.href.replace('#', ''));
-    const observers = [];
-
-    sectionIds.forEach((id) => {
+    const ids = NAV_LINKS.map(l => l.href.replace('#', ''));
+    const observers = ids.map(id => {
       const el = document.getElementById(id);
-      if (!el) return;
+      if (!el) return null;
       const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActive(id); },
-        { threshold: 0.4 },
+        ([e]) => { if (e.isIntersecting) setActive(id); },
+        { threshold: 0.3 }
       );
       obs.observe(el);
-      observers.push(obs);
+      return obs;
     });
-
-    return () => observers.forEach((o) => o.disconnect());
+    return () => observers.forEach(o => o?.disconnect());
   }, []);
 
   return (
     <>
-      {/* Scroll progress bar */}
-      <div
-        className="fixed top-0 left-0 right-0 z-[60] h-[2px]"
-        style={{ background: 'rgba(56,189,248,0.1)' }}
-      >
-        <motion.div
-          className="h-full origin-left"
-          style={{
-            scaleX: progress,
-            background: 'linear-gradient(90deg, #38BDF8, #8B5CF6)',
-          }}
-        />
+      {/* Scroll progress */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '1px', zIndex: 100, background: 'var(--border-subtle)' }}>
+        <motion.div style={{ scaleX: progress, transformOrigin: 'left', height: '100%', background: 'var(--border-mid)' }} />
       </div>
 
       <header
-        className={cn(
-          'fixed top-0 inset-x-0 z-50 transition-all duration-500',
-          scrolled
-            ? 'py-3 border-b'
-            : 'py-5',
-        )}
-        style={
-          scrolled
-            ? {
-                background: 'rgba(5,8,22,0.85)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                borderColor: 'rgba(56,189,248,0.1)',
-              }
-            : {}
-        }
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          transition: 'background 300ms ease, border-color 300ms ease',
+          background: scrolled ? 'rgba(3,3,3,0.85)' : 'transparent',
+          backdropFilter: scrolled ? 'blur(16px)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'none',
+          borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+        }}
       >
-        <div className="container flex items-center justify-between">
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBlock: '1rem' }}>
           {/* Logo */}
-          <Link
-            to="/"
-            className="font-display text-lg font-bold tracking-widest uppercase select-none"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--color-accent)' }}
+          <a
+            href="#"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.9375rem',
+              fontWeight: 600,
+              letterSpacing: '-0.01em',
+              color: 'var(--text-primary)',
+            }}
           >
             ST
-            <span style={{ color: 'rgba(56,189,248,0.4)' }}>.</span>
-          </Link>
+          </a>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '2rem' }} className="hidden-mobile">
             {NAV_LINKS.map(({ label, href }) => {
               const id = href.replace('#', '');
-              const isActive = activeSection === id;
+              const isActive = active === id;
               return (
                 <a
                   key={label}
                   href={href}
-                  className="relative text-xs tracking-[0.15em] uppercase transition-colors duration-200"
                   style={{
                     fontFamily: 'var(--font-mono)',
-                    color: isActive ? 'var(--color-accent)' : 'var(--color-muted)',
+                    fontSize: '0.6875rem',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
+                    transition: 'color 150ms ease',
                   }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = isActive ? 'var(--text-primary)' : 'var(--text-muted)')}
                 >
                   {label}
-                  {isActive && (
-                    <motion.span
-                      layoutId="nav-indicator"
-                      className="absolute -bottom-1 left-0 right-0 h-px"
-                      style={{ background: 'var(--color-accent)' }}
-                    />
-                  )}
                 </a>
               );
             })}
@@ -112,45 +95,47 @@ export default function Navbar() {
           {/* CTA */}
           <a
             href="#contact"
-            className="hidden md:inline-flex items-center gap-2 px-5 py-2 rounded text-xs font-medium tracking-[0.1em] uppercase transition-all duration-200 hover:shadow-lg"
+            className="hidden-mobile"
             style={{
               fontFamily: 'var(--font-mono)',
-              background: 'rgba(56,189,248,0.1)',
-              border: '1px solid rgba(56,189,248,0.3)',
-              color: 'var(--color-accent)',
+              fontSize: '0.6875rem',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              padding: '7px 16px',
+              border: '1px solid var(--border-mid)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--text-secondary)',
+              transition: 'border-color 150ms ease, color 150ms ease',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(56,189,248,0.2)';
-              e.currentTarget.style.borderColor = 'rgba(56,189,248,0.6)';
-              e.currentTarget.style.boxShadow = '0 0 20px rgba(56,189,248,0.2)';
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'var(--border-strong)';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(56,189,248,0.1)';
-              e.currentTarget.style.borderColor = 'rgba(56,189,248,0.3)';
-              e.currentTarget.style.boxShadow = 'none';
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'var(--border-mid)';
+              e.currentTarget.style.color = 'var(--text-secondary)';
             }}
           >
-            Hire Me
+            Hire me
           </a>
 
           {/* Hamburger */}
           <button
-            onClick={() => setMenuOpen((o) => !o)}
-            aria-label="Toggle menu"
-            className="md:hidden flex flex-col gap-1.5 p-2"
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="Toggle navigation"
+            className="show-mobile"
+            style={{ padding: '4px', color: 'var(--text-secondary)' }}
           >
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className={cn(
-                  'block h-0.5 w-6 rounded-full transition-all duration-300',
-                  menuOpen && i === 0 && 'translate-y-2 rotate-45',
-                  menuOpen && i === 1 && 'opacity-0',
-                  menuOpen && i === 2 && '-translate-y-2 -rotate-45',
-                )}
-                style={{ background: 'var(--color-accent)' }}
-              />
-            ))}
+            <div style={{ width: '20px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              {[0,1,2].map(i => (
+                <span key={i} style={{
+                  display: 'block', height: '1px', background: 'currentColor', borderRadius: '1px',
+                  transition: 'transform 200ms ease, opacity 200ms ease',
+                  transform: menuOpen && i === 0 ? 'translateY(6px) rotate(45deg)' : menuOpen && i === 2 ? 'translateY(-6px) rotate(-45deg)' : 'none',
+                  opacity: menuOpen && i === 1 ? 0 : 1,
+                }} />
+              ))}
+            </div>
           </button>
         </div>
 
@@ -161,46 +146,38 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden overflow-hidden border-t"
               style={{
-                background: 'rgba(5,8,22,0.95)',
-                backdropFilter: 'blur(20px)',
-                borderColor: 'rgba(56,189,248,0.1)',
+                overflow: 'hidden',
+                borderTop: '1px solid var(--border)',
+                background: 'rgba(3,3,3,0.95)',
+                backdropFilter: 'blur(16px)',
               }}
             >
-              <nav className="container flex flex-col gap-4 py-6">
+              <nav className="container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBlock: '1.5rem' }}>
                 {NAV_LINKS.map(({ label, href }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    onClick={() => setMenuOpen(false)}
-                    className="text-sm tracking-[0.15em] uppercase transition-colors"
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      color: 'var(--color-text-2)',
-                    }}
-                  >
+                  <a key={label} href={href} onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
                     {label}
                   </a>
                 ))}
-                <a
-                  href="#contact"
-                  onClick={() => setMenuOpen(false)}
-                  className="inline-flex w-fit items-center px-5 py-2 rounded text-xs font-medium tracking-widest uppercase"
-                  style={{
-                    background: 'rgba(56,189,248,0.1)',
-                    border: '1px solid rgba(56,189,248,0.3)',
-                    color: 'var(--color-accent)',
-                    fontFamily: 'var(--font-mono)',
-                  }}
-                >
-                  Hire Me
+                <a href="#contact" onClick={() => setMenuOpen(false)}
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-primary)', paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
+                  Hire me →
                 </a>
               </nav>
             </motion.div>
           )}
         </AnimatePresence>
       </header>
+
+      <style>{`
+        .hidden-mobile { display: flex; }
+        .show-mobile { display: none; }
+        @media (max-width: 768px) {
+          .hidden-mobile { display: none !important; }
+          .show-mobile { display: block !important; }
+        }
+      `}</style>
     </>
   );
 }
