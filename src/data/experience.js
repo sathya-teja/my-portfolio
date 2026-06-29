@@ -1,0 +1,101 @@
+export const EXPERIENCE = [
+  {
+    id: 'vibrance-ai',
+    role: 'Software Development Intern',
+    company: 'Vibrance AI',
+    period: '2024',
+    type: 'Internship',
+    color: '#8B5CF6',
+    description:
+      'Contributed to AI-powered product development, building scalable frontend components and integrating machine learning APIs into production applications.',
+    highlights: [
+      'Built responsive React components reducing load time by 40%',
+      'Integrated AI/ML model APIs with React frontend',
+      'Collaborated with cross-functional team of 12 engineers',
+      'Implemented CI/CD pipeline improvements',
+    ],
+    tech: ['React', 'Python', 'REST APIs', 'Git'],
+  },
+  {
+    id: 'codesoft',
+    role: 'Web Development Intern',
+    company: 'Codesoft',
+    period: '2023',
+    type: 'Internship',
+    color: '#38BDF8',
+    description:
+      'Developed and maintained full-stack web applications, gaining hands-on experience with modern JavaScript frameworks and database management.',
+    highlights: [
+      'Developed 3 production web applications from scratch',
+      'Implemented secure authentication systems using JWT',
+      'Optimized database queries improving performance by 60%',
+      'Mentored junior developers on React best practices',
+    ],
+    tech: ['JavaScript', 'React', 'Node.js', 'MongoDB'],
+  },
+  {
+    id: 'ieee',
+    role: 'Technical Committee Member',
+    company: 'IEEE Student Branch',
+    period: '2022 – Present',
+    type: 'Leadership',
+    color: '#10B981',
+    description:
+      'Active contributor to the IEEE student branch, organizing technical workshops, hackathons, and fostering a community of future engineers.',
+    highlights: [
+      'Organized 5+ technical workshops for 200+ students',
+      'Led team project at IEEE Xtreme Programming Competition',
+      'Published technical content on emerging technologies',
+      'Mentored 20+ junior members in software development',
+    ],
+    tech: ['Leadership', 'Technical Writing', 'Event Management'],
+  },
+];
+
+export const CERTIFICATIONS = [
+  {
+    title: 'Azure AI Fundamentals',
+    issuer: 'Microsoft',
+    date: '2024',
+    badge: 'AI-900',
+    color: '#38BDF8',
+    icon: '☁',
+    description: 'Foundational knowledge of AI and machine learning concepts on Microsoft Azure.',
+  },
+  {
+    title: 'Programming in Java',
+    issuer: 'NPTEL (IIT)',
+    date: '2023',
+    badge: 'NPTEL',
+    color: '#8B5CF6',
+    icon: '☕',
+    description: 'Comprehensive Java programming course from the prestigious IIT via NPTEL platform.',
+  },
+  {
+    title: 'Python for Data Science',
+    issuer: 'NPTEL (IIT)',
+    date: '2023',
+    badge: 'NPTEL',
+    color: '#10B981',
+    icon: '🐍',
+    description: 'Data science and analytics fundamentals using Python, pandas, and visualization tools.',
+  },
+  {
+    title: 'The Joy of Computing with Python',
+    issuer: 'NPTEL (IIT)',
+    date: '2022',
+    badge: 'NPTEL',
+    color: '#F59E0B',
+    icon: '⚡',
+    description: 'Core computational thinking and Python programming from IIT faculty.',
+  },
+  {
+    title: 'Responsive Web Design',
+    issuer: 'freeCodeCamp',
+    date: '2023',
+    badge: 'FCC',
+    color: '#22D3EE',
+    icon: '🌐',
+    description: 'HTML5, CSS3, and responsive design principles for modern web development.',
+  },
+];
