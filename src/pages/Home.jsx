@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect , useLayoutEffect, useRef, useCallback } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring, LayoutGroup } from 'framer-motion';
 import { FiGithub, FiLinkedin, FiMail, FiArrowUpRight, FiDownload, FiPlay, FiCode, FiCpu, FiCloud, FiDatabase } from 'react-icons/fi';
 import { 
@@ -1215,7 +1215,7 @@ function About({ onInViewChange }) {
   const textInView = useInView(ref, { once: true, margin: '-80px' });
   const layoutInView = useInView(ref, { margin: '0px 0px -30% 0px' });
 
-  useEffect(() => {
+  useLayoutEffect(() => {           // ← was useEffect
     if (onInViewChange) onInViewChange(layoutInView);
   }, [layoutInView, onInViewChange]);
 
