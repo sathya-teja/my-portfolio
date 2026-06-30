@@ -490,6 +490,73 @@ const CSS = `
   .scene-dot.active { background: var(--accent); box-shadow: 0 0 12px rgba(110,231,183,0.6); }
   @media(max-width:900px){
     .scene-side-nav { display: none; }
+    .project-text-col { height: auto; max-height: none; }
+    .project-scene-features { height: auto; max-height: 100px; }
+  }
+
+  /* ── Project scene — fixed text slots for layout consistency ── */
+  .project-text-col {
+    display: flex;
+    flex-direction: column;
+    height: clamp(500px, 68dvh, 660px);
+    overflow: hidden;
+  }
+  .project-scene-header { flex-shrink: 0; }
+  .project-scene-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(2 * 1.04em);
+    max-height: calc(2 * 1.04em);
+  }
+  .project-scene-year { flex-shrink: 0; }
+  .project-scene-desc {
+    flex-shrink: 0;
+    height: calc(4 * 1.8em);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+  .project-scene-features {
+    flex-shrink: 0;
+    height: calc(4 * 31px);
+    overflow: hidden;
+  }
+  .project-scene-features > div span:last-child {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .project-scene-tech {
+    flex-shrink: 0;
+    height: 56px;
+    overflow: hidden;
+  }
+  .project-scene-actions {
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+
+  /* ── Projects Overview ── */
+  .proj-overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    min-height: 100dvh;
+    padding: 120px 0 80px;
+  }
+  .proj-stat-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px 22px;
+  }
+  @media(max-width:900px){
+    .proj-overview-grid { grid-template-columns: 1fr !important; gap: 3rem !important; }
   }
 
   /* Timeline */
@@ -1344,12 +1411,25 @@ function SkillScene({ cat, index, total, scrollYProgress }) {
   const seg = 1 / total;
   const start = index * seg;
   const end = start + seg;
+  const isFirst = index === 0;
 
   const [eIn0, eIn1, eIn2, eIn3] = clampedSegmentInput(start, end, 1);
-  const local = useTransform(scrollYProgress, [start, start + seg * 0.42], [0, 1]);
+  const local = useTransform(
+    scrollYProgress,
+    [start, start + seg * 0.42],
+    isFirst ? [0.35, 1] : [0, 1],
+  );
 
-  const sceneOpacity = useTransform(scrollYProgress, [eIn0, eIn1, eIn2, eIn3], [0, 1, 1, 0]);
-  const sceneScale  = useTransform(scrollYProgress, [eIn0, eIn1, eIn2, eIn3], [1.1, 1, 1, 0.9]);
+  const sceneOpacity = useTransform(
+    scrollYProgress,
+    isFirst ? [start, eIn2, eIn3] : [eIn0, eIn1, eIn2, eIn3],
+    isFirst ? [1, 1, 0] : [0, 1, 1, 0],
+  );
+  const sceneScale = useTransform(
+    scrollYProgress,
+    isFirst ? [start, eIn2, eIn3] : [eIn0, eIn1, eIn2, eIn3],
+    isFirst ? [1, 1, 0.9] : [1.1, 1, 1, 0.9],
+  );
   const scenePointer = useTransform(sceneOpacity, v => (v > 0.6 ? 'auto' : 'none'));
 
   // Far layer — ghost wordmark drifts horizontally (same as Projects)
@@ -1507,21 +1587,141 @@ function Skills() {
 // multi-plane parallax. Scenes cross-fade + zoom + blur into one another
 // (a soft "camera dolly" through a tunnel of rooms) rather than sliding.
 
+const PROJECT_OVERVIEW_CHIPS = ['Web Development', 'Machine Learning', 'AI & Chatbots', 'E-Commerce', 'Healthcare'];
+
+function ProjectsOverview() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const total = PROJECTS.length;
+
+  return (
+    <div ref={ref} style={{ background: '#030408', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '8%', right: '-8%', width: 560, height: 560, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(129,140,248,0.08) 0%,transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '10%', left: '-6%', width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(59,130,246,0.06) 0%,transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+
+      <div className="ct proj-overview-grid">
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            style={{ marginBottom: 10 }}
+          >
+            <span className="eyebrow">04 — Portfolio</span>
+          </motion.div>
+
+          <div style={{ marginBottom: 28, overflow: 'hidden' }}>
+            {'PROJECTS'.split('').map((ch, i) => (
+              <motion.span key={i}
+                initial={{ y: '110%', opacity: 0 }}
+                animate={inView ? { y: '0%', opacity: 1 } : {}}
+                transition={{ duration: 0.65, delay: 0.12 + i * 0.038, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  display: 'inline-block',
+                  fontSize: 'clamp(38px,5vw,72px)', fontWeight: 700,
+                  letterSpacing: '-0.04em', lineHeight: 1.1,
+                  color: '#fff',
+                }}
+              >
+                {ch}
+              </motion.span>
+            ))}
+          </div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            style={{ fontSize: 16, lineHeight: 1.75, color: 'rgba(255,255,255,0.45)', maxWidth: 440, marginBottom: 36 }}
+          >
+            Selected work spanning full-stack apps, machine learning, AI integrations, and production-ready platforms — scroll to explore each build.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.7, delay: 0.55 }}
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}
+          >
+            {PROJECT_OVERVIEW_CHIPS.map((chip, i) => (
+              <motion.div key={chip}
+                initial={{ opacity: 0, y: 10 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.4, delay: 0.6 + i * 0.05 }}
+                className="card" style={{ padding: '10px 18px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent2)', boxShadow: '0 0 10px rgba(129,140,248,0.5)' }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.02em' }}>{chip}</span>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.7, delay: 0.8 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12, marginTop: '4rem' }}
+          >
+            <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--dim)' }}>Scroll to explore</span>
+            <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ width: 1, height: 40, background: 'linear-gradient(180deg,var(--accent2),transparent)' }} />
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.25 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+        >
+          <div className="proj-stat-card">
+            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--dim)', marginBottom: 8 }}>Featured builds</p>
+            <p style={{ fontSize: 'clamp(40px,5vw,56px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#fff', lineHeight: 1 }}>
+              {String(total).padStart(2, '0')}
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            {PROJECTS.slice(0, 4).map((p, i) => (
+              <motion.div key={p.id}
+                initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.45, delay: 0.4 + i * 0.07 }}
+                className="proj-stat-card" style={{ borderColor: `${p.accent}25` }}>
+                <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: p.accent, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{p.subtitle}</span>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginTop: 6, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{p.title}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 function ProjectScene({ p, index, total, scrollYProgress }) {
   const seg = 1 / total;
   const start = index * seg;
   const end = start + seg;
+  const isFirst = index === 0;
   const [eIn0, eIn1, eIn2, eIn3] = clampedSegmentInput(start, end, 1);
 
   // Local 0→1 progress just for this scene, used for staggered reveals.
-  const local = useTransform(scrollYProgress, [start, start + seg * 0.55], [0, 1]);
+  const local = useTransform(
+    scrollYProgress,
+    [start, start + seg * 0.55],
+    isFirst ? [0.35, 1] : [0, 1],
+  );
   const localExit = useTransform(scrollYProgress, [end - seg * 0.3, end], [0, 1]);
 
   // Camera dolly: zoom IN while entering, hold, zoom slightly further +
   // blur OUT while leaving — like passing through a doorway into the next room.
-  const sceneOpacity = useTransform(scrollYProgress, [eIn0, eIn1, eIn2, eIn3], [0, 1, 1, 0]);
-  const sceneScale = useTransform(scrollYProgress, [eIn0, eIn1, eIn2, eIn3], [1.18, 1, 1, 0.86]);
-  const sceneBlur = useTransform(scrollYProgress, [eIn0, eIn1, eIn2, eIn3], [14, 0, 0, 10]);
+  const sceneOpacity = useTransform(
+    scrollYProgress,
+    isFirst ? [start, eIn2, eIn3] : [eIn0, eIn1, eIn2, eIn3],
+    isFirst ? [1, 1, 0] : [0, 1, 1, 0],
+  );
+  const sceneScale = useTransform(
+    scrollYProgress,
+    isFirst ? [start, eIn2, eIn3] : [eIn0, eIn1, eIn2, eIn3],
+    isFirst ? [1, 1, 0.86] : [1.18, 1, 1, 0.86],
+  );
+  const sceneBlur = useTransform(
+    scrollYProgress,
+    isFirst ? [start, eIn2, eIn3] : [eIn0, eIn1, eIn2, eIn3],
+    isFirst ? [0, 0, 10] : [14, 0, 0, 10],
+  );
   const sceneFilter = useTransform(sceneBlur, b => `blur(${b}px)`);
   const scenePointer = useTransform(sceneOpacity, v => (v > 0.6 ? 'auto' : 'none'));
 
@@ -1573,9 +1773,9 @@ function ProjectScene({ p, index, total, scrollYProgress }) {
       <div className="ct" style={{ position: 'relative', zIndex: 2 }}>
         <div className="scene-inner">
 
-          {/* Near layer: text */}
-          <motion.div style={{ y: exitY, opacity: exitO }}>
-            <motion.div style={{ y: kickerY, opacity: kickerO, display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+          {/* Near layer: text — fixed-height slots keep every scene aligned */}
+          <motion.div className="project-text-col" style={{ y: exitY, opacity: exitO }}>
+            <motion.div className="project-scene-header" style={{ y: kickerY, opacity: kickerO, display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
               <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 13, fontWeight: 700, color: p.accent, letterSpacing: '0.05em' }}>
                 {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
               </span>
@@ -1583,20 +1783,20 @@ function ProjectScene({ p, index, total, scrollYProgress }) {
               <span className="chip" style={{ borderColor: `${p.accent}35`, color: p.accent, background: `${p.accent}10` }}>{p.subtitle}</span>
             </motion.div>
 
-            <motion.h3 style={{
+            <motion.h3 className="project-scene-title" style={{
               y: titleY, opacity: titleO,
               fontSize: 'clamp(36px,4.6vw,60px)', fontWeight: 700, letterSpacing: '-0.03em',
               color: '#fff', marginBottom: 6, lineHeight: 1.04,
             }}>
               {p.title}
             </motion.h3>
-            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)', marginBottom: 22 }}>{p.year}</p>
+            <p className="project-scene-year" style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)', marginBottom: 22 }}>{p.year}</p>
 
-            <motion.p style={{ y: descY, opacity: descO, fontSize: 16, lineHeight: 1.8, color: 'rgba(255,255,255,0.55)', maxWidth: 480, marginBottom: 22 }}>
+            <motion.p className="project-scene-desc" style={{ y: descY, opacity: descO, fontSize: 16, lineHeight: 1.8, color: 'rgba(255,255,255,0.55)', maxWidth: 480, marginBottom: 22 }}>
               {p.description}
             </motion.p>
 
-            <motion.div className="scene-features" style={{ y: featY, opacity: featO, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
+            <motion.div className="scene-features project-scene-features" style={{ y: featY, opacity: featO, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
               {p.features.map(f => (
                 <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                   <span style={{ width: 5, height: 5, borderRadius: '50%', background: p.accent, marginTop: 8, flexShrink: 0 }} />
@@ -1605,11 +1805,11 @@ function ProjectScene({ p, index, total, scrollYProgress }) {
               ))}
             </motion.div>
 
-            <motion.div style={{ opacity: featO, display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 30, justifyContent: 'inherit' }}>
+            <motion.div className="project-scene-tech" style={{ opacity: featO, display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 30, justifyContent: 'inherit', alignContent: 'flex-start' }}>
               {p.tech.map(t => <span key={t} className="chip">{t}</span>)}
             </motion.div>
 
-            <motion.div style={{ y: btnY, opacity: btnO, display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'inherit' }}>
+            <motion.div className="project-scene-actions" style={{ y: btnY, opacity: btnO, display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'inherit' }}>
               <a href={p.demo} target="_blank" rel="noopener noreferrer" className="scene-link-btn"
                 style={{ background: p.accent, color: '#060912' }}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = `0 8px 28px ${p.accent}45`}
@@ -1701,25 +1901,29 @@ function Projects() {
   }, [scrollYProgress, total]);
 
   return (
-    <section id="projects" ref={containerRef} style={{ height: `${total * 130}vh`, position: 'relative', background: '#030408' }}>
-      <div className="scenes-pin">
+    <section id="projects" style={{ position: 'relative', background: '#030408' }}>
+      <ProjectsOverview />
 
-        {PROJECTS.map((p, i) => (
-          <ProjectScene key={p.id} p={p} index={i} total={total} scrollYProgress={scrollYProgress} />
-        ))}
+      <div ref={containerRef} style={{ height: `${total * 130}vh`, position: 'relative' }}>
+        <div className="scenes-pin">
 
-        <div className="scene-side-nav">
-          {PROJECTS.map((p, i) => <SceneDotItem key={p.id} index={i} seg={1 / total} scrollYProgress={scrollYProgress} />)}
-        </div>
+          {PROJECTS.map((p, i) => (
+            <ProjectScene key={p.id} p={p} index={i} total={total} scrollYProgress={scrollYProgress} />
+          ))}
 
-        <div className="scene-rail-wrap">
-          <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 2 }}>Scroll to Explore</p>
-          <div className="scene-rail">
-            <motion.div style={{ scaleX: scrollYProgress, transformOrigin: 'left', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+          <div className="scene-side-nav">
+            {PROJECTS.map((p, i) => <SceneDotItem key={p.id} index={i} seg={1 / total} scrollYProgress={scrollYProgress} />)}
           </div>
-          <span className="scene-counter">{String(activeIdx + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}</span>
-        </div>
 
+          <div className="scene-rail-wrap">
+            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 2 }}>Scroll to Explore</p>
+            <div className="scene-rail">
+              <motion.div style={{ scaleX: scrollYProgress, transformOrigin: 'left', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+            </div>
+            <span className="scene-counter">{String(activeIdx + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}</span>
+          </div>
+
+        </div>
       </div>
     </section>
   );
