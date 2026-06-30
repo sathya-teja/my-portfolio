@@ -21,6 +21,9 @@ const SKILLS = [
     id: 'frontend',
     title: 'Frontend',
     accent: '#6ee7b7',
+    bgWord: 'FRONTEND',
+    description: 'Crafting immersive, responsive, and high-performance user interfaces with modern web technologies.',
+    primaryStack: ['React.js', 'Next.js', 'Tailwind CSS', 'Framer Motion'],
     tech: [
       { name: 'React.js', Icon: SiReact },
       { name: 'Next.js', Icon: SiNextdotjs },
@@ -36,31 +39,28 @@ const SKILLS = [
     id: 'backend',
     title: 'Backend',
     accent: '#818cf8',
+    bgWord: 'BACKEND',
+    description: 'Designing scalable server-side architectures and secure APIs that power real-world applications.',
+    primaryStack: ['Node.js', 'Express.js', 'Spring Boot', 'MongoDB'],
     tech: [
       { name: 'Node.js', Icon: SiNodedotjs },
       { name: 'Express.js', Icon: SiExpress },
       { name: 'Spring Boot', Icon: SiSpringboot },
       { name: 'REST APIs', Icon: FiCode },
-      { name: 'GraphQL', Icon: SiGraphql },
-      { name: 'Socket.io', Icon: SiSocketdotio }
-    ]
-  },
-  {
-    id: 'database',
-    title: 'Database',
-    accent: '#fbbf24',
-    tech: [
       { name: 'MongoDB', Icon: SiMongodb },
-      { name: 'PostgreSQL', Icon: SiPostgresql },
       { name: 'MySQL', Icon: SiMysql },
-      { name: 'Redis', Icon: SiRedis },
-      { name: 'Firebase', Icon: SiFirebase }
+      { name: 'Firebase', Icon: SiFirebase },
+      { name: 'Socket.io', Icon: SiSocketdotio }
     ]
   },
   {
     id: 'ai',
     title: 'AI / Computer Vision',
     accent: '#f87171',
+    bgWord: 'VISION',
+    description: 'Building intelligent systems capable of understanding gestures, images, and real-world interactions.',
+    primaryStack: ['Python', 'OpenCV', 'MediaPipe', 'TensorFlow'],
+    featuredProject: 'Gesture Controlled Virtual Mouse',
     tech: [
       { name: 'Python', Icon: SiPython },
       { name: 'OpenCV', Icon: SiOpencv },
@@ -72,28 +72,35 @@ const SKILLS = [
     ]
   },
   {
-    id: 'cloud',
-    title: 'Cloud / DevOps',
+    id: 'devops',
+    title: 'Dev Workflow',
     accent: '#38bdf8',
+    bgWord: 'WORKFLOW',
+    description: 'Leveraging modern tools and cloud platforms to build, test, deploy, and maintain reliable software.',
+    primaryStack: ['Git', 'Docker', 'Linux', 'Postman'],
     tech: [
-      { name: 'Docker', Icon: SiDocker },
-      { name: 'Microsoft Azure', Icon: FiCloud },
       { name: 'Git', Icon: SiGit },
+      { name: 'Docker', Icon: SiDocker },
       { name: 'Linux', Icon: SiLinux },
       { name: 'Postman', Icon: SiPostman },
-      { name: 'CI/CD', Icon: FiCloud }
+      { name: 'Azure', Icon: FiCloud },
+      { name: 'GraphQL', Icon: SiGraphql }
     ]
   },
   {
-    id: 'language',
-    title: 'Languages',
+    id: 'learning',
+    title: 'Currently Exploring',
     accent: '#a78bfa',
+    bgWord: 'GROWING',
+    description: 'Continuously expanding my engineering capabilities to stay current with industry trends.',
+    primaryStack: ['System Design', 'LLMs & AI Agents', 'Spring Boot', 'Cloud'],
     tech: [
-      { name: 'Java', Icon: FiCode },
-      { name: 'JavaScript', Icon: SiJavascript },
-      { name: 'TypeScript', Icon: SiTypescript },
-      { name: 'Python', Icon: SiPython },
-      { name: 'SQL', Icon: FiDatabase }
+      { name: 'System Design', Icon: FiCpu },
+      { name: 'LLMs', Icon: FiCode },
+      { name: 'AI Agents', Icon: FiCpu },
+      { name: 'Spring Boot', Icon: SiSpringboot },
+      { name: 'Cloud Tech', Icon: FiCloud },
+      { name: 'Advanced CV', Icon: SiOpencv }
     ]
   }
 ];
@@ -553,6 +560,87 @@ const CSS = `
     border:1px solid rgba(255,255,255,0.06);
   }
 
+  /* ── Skills Overview ── */
+  .sko-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    min-height: 100dvh;
+    padding: 120px 0 80px;
+  }
+  .sko-cat-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .sko-cat-row:first-of-type { border-top: 1px solid rgba(255,255,255,0.04); }
+  .sko-cat-label {
+    font-family: var(--fn-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    white-space: nowrap;
+    min-width: 90px;
+  }
+  .sko-cat-techs {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+  }
+  .sko-stat {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 22px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, background 0.3s, transform 0.3s, box-shadow 0.3s;
+    cursor: default;
+  }
+  .sko-stat:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+  }
+  .sko-stat-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 2px;
+  }
+  .sko-scroll-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 3rem;
+  }
+  .sko-featured-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px 4px 8px;
+    border-radius: 99px;
+    font-family: var(--fn-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    border: 1px solid;
+    margin-bottom: 18px;
+  }
+  @keyframes sko-pulse-dot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:0.4; transform:scale(0.7); }
+  }
+
+  @media(max-width:900px){
+    .sko-grid { grid-template-columns:1fr !important; gap:3rem !important; }
+  }
   @media(max-width:720px){
     .about-grid { grid-template-columns:1fr !important; }
     .skill-grid-compact { grid-template-columns:repeat(2,1fr); }
@@ -1148,20 +1236,132 @@ function StatCard({ label, value, suffix, color, inView }) {
 
 // ─── Skills (Cinematic Pinned Scroll) ────────────────────────────
 
+// Overview categories shown on the instant-scan panel
+const OVERVIEW_CHIPS = ['Frontend & UI', 'Backend Architectures', 'Computer Vision & AI', 'Cloud & DevOps', 'System Design'];
+
+function SkillsOverview() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+
+  return (
+    <div ref={ref} style={{ background: '#030408', position: 'relative', overflow: 'hidden' }}>
+      {/* ambient glow */}
+      <div style={{ position: 'absolute', top: '10%', left: '-10%', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(110,231,183,0.07) 0%,transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '5%', right: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(129,140,248,0.06) 0%,transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+
+      <div className="ct sko-grid" style={{ minHeight: '100dvh', display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: '5rem', alignItems: 'center', padding: '120px 0 80px' }}>
+        {/* ── Left: heading + category chips ── */}
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            style={{ marginBottom: 10 }}
+          >
+            <span className="eyebrow">03 — Capabilities</span>
+          </motion.div>
+
+          <div style={{ marginBottom: 28, overflow: 'hidden' }}>
+            {'TECH STACK'.split('').map((ch, i) => (
+              <motion.span key={i}
+                initial={{ y: '110%', opacity: 0 }}
+                animate={inView ? { y: '0%', opacity: 1 } : {}}
+                transition={{ duration: 0.65, delay: 0.12 + i * 0.038, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  display: 'inline-block',
+                  fontSize: 'clamp(38px,5vw,72px)', fontWeight: 700,
+                  letterSpacing: '-0.04em', lineHeight: 1.1,
+                  color: ch === ' ' ? undefined : '#fff',
+                }}
+              >
+                {ch === ' ' ? '\u00a0' : ch}
+              </motion.span>
+            ))}
+          </div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            style={{ fontSize: 16, lineHeight: 1.75, color: 'rgba(255,255,255,0.45)', maxWidth: 440, marginBottom: 36 }}
+          >
+            Building intelligent, scalable, and immersive digital experiences. A comprehensive showcase of my engineering stack across all platforms.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.7, delay: 0.55 }}
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}
+          >
+            {OVERVIEW_CHIPS.map((chip, i) => (
+              <motion.div key={chip}
+                initial={{ opacity: 0, y: 10 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.4, delay: 0.6 + i * 0.05 }}
+                className="card" style={{ padding: '10px 18px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 10px rgba(110,231,183,0.5)' }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.02em' }}>{chip}</span>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Scroll hint */}
+          <motion.div
+            initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.7, delay: 0.8 }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12, marginTop: '4rem' }}
+          >
+            <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, letterSpacing: '0.24em', textTransform: 'uppercase', color: 'var(--dim)' }}>Scroll to explore</span>
+            <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ width: 1, height: 40, background: 'linear-gradient(180deg,var(--accent),transparent)' }} />
+          </motion.div>
+        </div>
+
+        {/* ── Right: tech orbit ── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 1.2, delay: 0.2 }}
+          style={{ position: 'relative', width: '100%', aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <div style={{ position: 'absolute', width: '100%', height: '100%', border: '1px solid rgba(255,255,255,0.03)', borderRadius: '50%', animation: 'spin 60s linear infinite' }} />
+          <div style={{ position: 'absolute', width: '75%', height: '75%', border: '1px dashed rgba(255,255,255,0.06)', borderRadius: '50%', animation: 'spin 40s linear infinite reverse' }}>
+             <div style={{ position:'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.2)' }}><SiReact size={24}/></div>
+             <div style={{ position:'absolute', bottom: '-12px', left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.2)' }}><SiPython size={24}/></div>
+             <div style={{ position:'absolute', top: '50%', right: '-12px', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.2)' }}><SiDocker size={24}/></div>
+             <div style={{ position:'absolute', top: '50%', left: '-12px', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.2)' }}><SiGit size={24}/></div>
+          </div>
+          <div style={{ position: 'absolute', width: '45%', height: '45%', border: '1px solid rgba(110,231,183,0.1)', borderRadius: '50%', animation: 'spin 20s linear infinite' }}>
+             <div style={{ position:'absolute', top: '15%', left: '15%', color: 'var(--accent)', opacity: 0.6 }}><SiNodedotjs size={24}/></div>
+             <div style={{ position:'absolute', bottom: '15%', right: '15%', color: 'var(--accent2)', opacity: 0.6 }}><SiTensorflow size={24}/></div>
+          </div>
+          <div style={{ width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(110,231,183,0.15) 0%, transparent 70%)', animation: 'glowPulse 3s ease-in-out infinite', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(110,231,183,0.2)' }}>
+            <SiOpencv size={40} color="var(--accent)" style={{ opacity: 0.8 }} />
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 function SkillScene({ cat, index, total, scrollYProgress }) {
   const seg = 1 / total;
   const start = index * seg;
   const end = start + seg;
-  
+
   const [eIn0, eIn1, eIn2, eIn3] = clampedSegmentInput(start, end, 1);
-  const local = useTransform(scrollYProgress, [start, start + seg * 0.4], [0, 1]);
+  const local = useTransform(scrollYProgress, [start, start + seg * 0.42], [0, 1]);
 
   const sceneOpacity = useTransform(scrollYProgress, [eIn0, eIn1, eIn2, eIn3], [0, 1, 1, 0]);
-  const sceneScale = useTransform(scrollYProgress, [eIn0, eIn1, eIn2, eIn3], [1.1, 1, 1, 0.9]);
+  const sceneScale  = useTransform(scrollYProgress, [eIn0, eIn1, eIn2, eIn3], [1.1, 1, 1, 0.9]);
   const scenePointer = useTransform(sceneOpacity, v => (v > 0.6 ? 'auto' : 'none'));
 
-  const titleY = useTransform(local, [0, 1], [40, 0]);
-  const titleO = useTransform(local, [0, 1], [0, 1]);
+  // Far layer — ghost wordmark drifts horizontally (same as Projects)
+  const farX = useTransform(scrollYProgress, [start, end], ['6%', '-6%']);
+
+  // Near layer timings for left column
+  const headerY = useTransform(local, [0, 0.45], [40, 0]);
+  const headerO = useTransform(local, [0, 0.35], [0, 1]);
+  const descY   = useTransform(local, [0.12, 0.55], [30, 0]);
+  const descO   = useTransform(local, [0.12, 0.45], [0, 1]);
+  const chipsO  = useTransform(local, [0.24, 0.65], [0, 1]);
+  const chipsY  = useTransform(local, [0.24, 0.65], [20, 0]);
 
   return (
     <motion.div
@@ -1171,44 +1371,80 @@ function SkillScene({ cat, index, total, scrollYProgress }) {
         scale: sceneScale,
         pointerEvents: scenePointer,
         zIndex: index + 10,
-        background: `#030408`,
-        backgroundImage: `radial-gradient(ellipse 80% 50% at 50% 50%, ${cat.accent}0a 0%, transparent 60%)`,
+        background: '#030408',
+        backgroundImage: `radial-gradient(ellipse 80% 50% at 50% 50%, ${cat.accent}0c 0%, transparent 60%)`,
       }}
     >
-      <div className="ct" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <motion.div style={{ y: titleY, opacity: titleO, marginBottom: '5rem', textAlign: 'center' }}>
-          <p className="eyebrow" style={{ justifyContent: 'center', marginBottom: 16 }}>
-            {String(index + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}
-          </p>
-          <h2 style={{ fontSize: 'clamp(42px, 7vw, 96px)', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1, color: '#fff' }}>
-            {cat.title}
-          </h2>
-        </motion.div>
+      {/* Far layer: drifting ghost wordmark */}
+      <motion.div style={{ position: 'absolute', inset: 0, x: farX, pointerEvents: 'none' }}>
+        <span className="scene-bgword" style={{ transform: 'translate(-50%,-50%)', WebkitTextStroke: `1px ${cat.accent}18` }}>
+          {cat.bgWord}
+        </span>
+      </motion.div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2.5rem 3.5rem', justifyContent: 'center', maxWidth: 1000, margin: '0 auto' }}>
-          {cat.tech.map((t, i) => {
-            const delayStart = i * 0.05;
-            const itemLocal = useTransform(local, [delayStart, Math.min(1, delayStart + 0.5)], [0, 1]);
-            const itemY = useTransform(itemLocal, [0, 1], [40, 0]);
-            const itemO = useTransform(itemLocal, [0, 1], [0, 1]);
-            
-            return (
-              <motion.div key={t.name} style={{ y: itemY, opacity: itemO, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
-                <div style={{
-                  width: 84, height: 84, borderRadius: 20,
-                  background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'rgba(255,255,255,0.5)', transition: 'all 0.3s'
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = cat.accent; e.currentTarget.style.borderColor = `${cat.accent}55`; e.currentTarget.style.background = `${cat.accent}10`; e.currentTarget.style.transform = 'translateY(-6px) scale(1.05)'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.transform = 'none'; }}
-                >
-                  <t.Icon size={38} />
+      <div className="ct" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', zIndex: 2 }}>
+        <div className="scene-inner" style={{ gridTemplateColumns: '0.8fr 1.2fr', gap: '5rem', alignItems: 'center' }}>
+          
+          {/* LEFT: Text & Chips */}
+          <div>
+            <motion.div style={{ y: headerY, opacity: headerO, marginBottom: '1.2rem' }}>
+              <p className="eyebrow" style={{ marginBottom: 14 }}>
+                {String(index + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}
+              </p>
+              {cat.featuredProject && (
+                <div className="sko-featured-badge" style={{ color: cat.accent, borderColor: `${cat.accent}40`, background: `${cat.accent}0e`, marginBottom: 12 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: cat.accent, display: 'inline-block', animation: 'sko-pulse-dot 1.8s ease-in-out infinite' }} />
+                  {cat.featuredProject}
                 </div>
-                <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 13, letterSpacing: '0.05em', color: 'rgba(255,255,255,0.7)' }}>{t.name}</span>
-              </motion.div>
-            );
-          })}
+              )}
+              <h2 style={{ fontSize: 'clamp(38px, 4.5vw, 68px)', fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.05, color: '#fff' }}>
+                {cat.title}
+              </h2>
+            </motion.div>
+
+            <motion.p style={{ y: descY, opacity: descO, fontSize: 16, lineHeight: 1.8, color: 'rgba(255,255,255,0.5)', marginBottom: 28, maxWidth: 440 }}>
+              {cat.description}
+            </motion.p>
+            
+            <motion.div style={{ y: chipsY, opacity: chipsO, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+              {cat.primaryStack.map(name => (
+                <span key={name} style={{
+                  fontFamily: 'var(--fn-mono)', fontSize: 12, letterSpacing: '0.04em',
+                  padding: '6px 16px', borderRadius: 99,
+                  background: `${cat.accent}12`,
+                  border: `1px solid ${cat.accent}30`,
+                  color: cat.accent,
+                }}>{name}</span>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* RIGHT: Visual Icon Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(85px, 1fr))', gap: '2rem', justifyItems: 'center' }}>
+            {cat.tech.map((t, i) => {
+              const delayStart = i * 0.04 + 0.1; 
+              const itemLocal = useTransform(local, [delayStart, Math.min(1, delayStart + 0.4)], [0, 1]);
+              const itemY = useTransform(itemLocal, [0, 1], [40, 0]);
+              const itemO = useTransform(itemLocal, [0, 1], [0, 1]);
+
+              return (
+                <motion.div key={t.name} style={{ y: itemY, opacity: itemO, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 78, height: 78, borderRadius: 18,
+                    background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'rgba(255,255,255,0.5)', transition: 'all 0.3s',
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.color = cat.accent; e.currentTarget.style.borderColor = `${cat.accent}55`; e.currentTarget.style.background = `${cat.accent}10`; e.currentTarget.style.transform = 'translateY(-6px) scale(1.05)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.transform = 'none'; }}
+                  >
+                    <t.Icon size={34} />
+                  </div>
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.65)', textAlign: 'center' }}>{t.name}</span>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -1216,10 +1452,10 @@ function SkillScene({ cat, index, total, scrollYProgress }) {
 }
 
 function Skills() {
-  const containerRef = useRef(null);
+  const pinnedRef = useRef(null);
   const total = SKILLS.length;
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: pinnedRef,
     offset: ['start start', 'end end'],
   });
 
@@ -1232,22 +1468,28 @@ function Skills() {
   }, [scrollYProgress, total]);
 
   return (
-    <section id="skills" ref={containerRef} style={{ height: `${total * 110}vh`, position: 'relative', background: '#030408' }}>
-      <div className="scenes-pin">
-        {SKILLS.map((cat, i) => (
-          <SkillScene key={cat.id} cat={cat} index={i} total={total} scrollYProgress={scrollYProgress} />
-        ))}
+    <section id="skills" style={{ position: 'relative', background: '#030408' }}>
+      {/* Full-screen overview — instant recruiter scan */}
+      <SkillsOverview />
 
-        <div className="scene-side-nav">
-          {SKILLS.map((cat, i) => <SceneDotItem key={cat.id} index={i} seg={1 / total} scrollYProgress={scrollYProgress} />)}
-        </div>
+      {/* Cinematic pinned scroll — storytelling experience */}
+      <div ref={pinnedRef} style={{ height: `${total * 115}vh`, position: 'relative' }}>
+        <div className="scenes-pin">
+          {SKILLS.map((cat, i) => (
+            <SkillScene key={cat.id} cat={cat} index={i} total={total} scrollYProgress={scrollYProgress} />
+          ))}
 
-        <div className="scene-rail-wrap">
-          <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 2 }}>Scroll to Explore</p>
-          <div className="scene-rail">
-            <motion.div style={{ scaleX: scrollYProgress, transformOrigin: 'left', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+          <div className="scene-side-nav">
+            {SKILLS.map((cat, i) => <SceneDotItem key={cat.id} index={i} seg={1 / total} scrollYProgress={scrollYProgress} />)}
           </div>
-          <span className="scene-counter">{String(activeIdx + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}</span>
+
+          <div className="scene-rail-wrap">
+            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 2 }}>Scroll to Explore</p>
+            <div className="scene-rail">
+              <motion.div style={{ scaleX: scrollYProgress, transformOrigin: 'left', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+            </div>
+            <span className="scene-counter">{String(activeIdx + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}</span>
+          </div>
         </div>
       </div>
     </section>
