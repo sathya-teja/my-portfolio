@@ -1,12 +1,12 @@
-﻿import { useState, useEffect , useLayoutEffect, useRef, useCallback } from 'react';
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring, LayoutGroup } from 'framer-motion';
-import { FiGithub, FiLinkedin, FiMail, FiArrowUpRight, FiDownload, FiPlay, FiCode, FiCpu, FiCloud, FiDatabase } from 'react-icons/fi';
+﻿import { useState, useEffect ,useLayoutEffect, useRef, useCallback } from 'react';
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring, LayoutGroup, animate, useDragControls } from 'framer-motion';
+import { FiGithub, FiLinkedin, FiMail, FiArrowUpRight, FiDownload, FiPlay, FiCode, FiCpu, FiCloud, FiDatabase,FiChevronLeft,FiChevronRight } from 'react-icons/fi';
 import { 
   SiReact, SiNextdotjs, SiJavascript, SiTypescript, SiHtml5, SiCss, SiTailwindcss, SiFramer,
   SiNodedotjs, SiExpress, SiSpringboot, SiGraphql, SiSocketdotio,
   SiMongodb, SiPostgresql, SiMysql, SiRedis, SiFirebase,
   SiPython, SiOpencv, SiNumpy, SiPandas, SiScikitlearn, SiTensorflow,
-  SiDocker, SiGit, SiLinux, SiPostman
+  SiDocker, SiGit, SiLinux, SiPostman,
 } from 'react-icons/si';
 
 // ─── Math Utils ──────────────────────────────────────────────────
@@ -715,6 +715,59 @@ const CSS = `
   @media(max-width:480px){
     .skill-grid-compact { grid-template-columns:1fr 1fr; }
   }
+    /* ── Certifications: 3D coverflow ── */
+  .cert-stage-wrap { position: relative; padding: 20px 0 0; }
+  .cert-ambient {
+    position: absolute; inset: -60px 15% auto 15%;
+    height: 420px; border-radius: 50%;
+    filter: blur(90px); opacity: 0.5;
+    pointer-events: none; transition: background 0.7s ease; z-index: 0;
+  }
+  .cert3d-stage {
+    position: relative;
+    height: clamp(320px, 38vw, 420px);
+    perspective: 1600px;
+    touch-action: pan-y;
+    z-index: 1;
+  }
+  .cert3d-drag-surface { position: absolute; inset: 0; pointer-events: none; }
+  .cert3d-card { will-change: transform, opacity, filter; }
+  .cert3d-flip { transform-style: preserve-3d; }
+  .cert3d-face {
+    position: absolute; inset: 0; border-radius: 18px;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border: 1px solid; background: rgb(15 17 27 / 82%);
+    padding: 26px; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .cert3d-back {
+    transform: rotateY(180deg);
+    align-items: center; justify-content: center; text-align: center; gap: 10px;
+  }
+  .cert3d-reflection {
+    position: absolute; left: 6%; right: 6%; bottom: -38px;
+    height: 30px; border-radius: 50%; filter: blur(14px); opacity: 0.5;
+    pointer-events: none;
+  }
+  .cert-nav-row {
+    display: flex; align-items: center; gap: 16px;
+    max-width: 420px; margin: 38px auto 0;
+  }
+  .cert-nav-btn {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid var(--border-hi); background: rgba(255,255,255,0.03);
+    color: var(--text); display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .cert-nav-btn:hover { border-color: var(--accent); background: rgba(110,231,183,0.1); color: var(--accent); }
+  .cert-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .cert-nav-btn:disabled:hover { border-color: var(--border-hi); background: rgba(255,255,255,0.03); color: var(--text); }
+  .cert-dots { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1; }
+  .cert-dot {
+    height: 6px; width: 6px; border-radius: 99px;
+    background: rgba(255,255,255,0.15); cursor: pointer;
+    transition: width 0.35s, background 0.35s;
+  }
+  .cert-dot.active { width: 22px; }
 `;
 
 // ─── Hooks ────────────────────────────────────────────────────────
@@ -2007,8 +2060,8 @@ function Contact() {
           <h2 style={{ fontSize: 'clamp(30px, 4vw, 46px)', fontWeight: 700, letterSpacing: '-0.027em', marginBottom: 12 }}>
             Let's build <span className="grad">something.</span>
           </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.42)', maxWidth: 440, lineHeight: 1.7, marginBottom: '2rem' }}>
-            Open to full-time roles and internships. Send a message — I respond within 24 hours.
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.42)', maxWidth: 440, lineHeight: 1.7, marginBottom: '1rem' }}>
+            Open to full-time roles and internships.
           </p>
         </FadeUp>
 
@@ -2135,44 +2188,199 @@ function Contact() {
 }
 
 // ─── Certifications ──────────────────────────────────────────────
-function Certifications() {
-  const ref = useRef(null);
+function useCertLayout() {
+  const [cardWidth, setCardWidth] = useState(300);
+  useLayoutEffect(() => {
+    const calc = () => {
+      const w = window.innerWidth;
+      if (w < 560) setCardWidth(208);
+      else if (w < 900) setCardWidth(244);
+      else setCardWidth(300);
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, []);
+  return cardWidth;
+}
+
+function CertCard({ cert, index, x, spacing, cardWidth, cardHeight, isActive, isFlipped, onFlip, onJump }) {
+  const offset = useTransform(x, v => v + index * spacing);
+  const rotateY = useTransform(offset, v => Math.max(-58, Math.min(58, -(v / spacing) * 46)));
+  const scale = useTransform(offset, v => Math.max(0.6, 1 - Math.min(Math.abs(v) / spacing, 2.2) * 0.2));
+  const opacity = useTransform(offset, v => Math.max(0, 1 - Math.min(Math.abs(v) / spacing, 2.6) * 0.4));
+  const blurPx = useTransform(offset, v => Math.min(Math.abs(v) / spacing, 3) * 2.4);
+  const filter = useTransform(blurPx, b => `blur(${b}px)`);
+  const zIndex = useTransform(offset, v => Math.round(200 - Math.abs(v) / 4));
+  const ySway = useTransform(offset, v => Math.min(Math.abs(v) / spacing, 1.4) * 16);
 
   return (
-    <section id="certifications" ref={ref} className="sec" style={{ background: '#0d0f19', position: 'relative', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+    <motion.div
+      className="cert3d-card"
+      style={{
+        position: 'absolute', top: 0, left: '50%',
+        width: cardWidth, height: cardHeight, marginLeft: -cardWidth / 2,
+        x: offset, y: ySway, scale, rotateY, opacity, filter, zIndex,
+        transformStyle: 'preserve-3d', cursor: 'pointer',
+      }}
+      onClick={() => (isActive ? onFlip() : onJump(index))}
+    >
+      <motion.div
+        className="cert3d-flip"
+        animate={{ rotateY: isActive && isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        style={{ width: '100%', height: '100%', position: 'relative', transformStyle: 'preserve-3d' }}
+      >
+        {/* Front */}
+        <div className="cert3d-face" style={{
+          borderColor: `${cert.color}40`,
+          boxShadow: isActive ? `0 30px 70px -24px ${cert.color}55, 0 0 0 1px ${cert.color}25` : `0 18px 40px -20px rgba(0,0,0,0.6)`,
+        }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${cert.color}, transparent)` }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
+            <div style={{ width: 50, height: 50, borderRadius: 14, background: `${cert.color}15`, border: `1px solid ${cert.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+              {cert.icon}
+            </div>
+            <span className="chip" style={{ color: cert.color, borderColor: `${cert.color}35`, background: `${cert.color}0c` }}>{cert.badge}</span>
+          </div>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: 8 }}>{cert.title}</h3>
+          <p style={{ fontSize: 13, color: 'var(--muted)' }}>{cert.issuer}</p>
+          <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+            <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, color: 'var(--dim)' }}>{cert.date}</span>
+            {isActive && <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: cert.color }}>Tap to flip ⟲</span>}
+          </div>
+        </div>
+
+        {/* Back */}
+        <div className="cert3d-face cert3d-back" style={{ borderColor: `${cert.color}40`, background: `radial-gradient(ellipse at 50% 30%, ${cert.color}16 0%, transparent 65%), rgba(255,255,255,0.03)` }}>
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <motion.circle cx="28" cy="28" r="25" stroke={cert.color} strokeWidth="2"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={isActive && isFlipped ? { pathLength: 1, opacity: 0.55 } : { pathLength: 0, opacity: 0 }}
+              transition={{ duration: 0.6, delay: isActive && isFlipped ? 0.25 : 0 }} />
+            <motion.path d="M17 29l7 7 15-15" stroke={cert.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={isActive && isFlipped ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
+              transition={{ duration: 0.45, delay: isActive && isFlipped ? 0.55 : 0 }} />
+          </svg>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={isActive && isFlipped ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }} transition={{ duration: 0.4, delay: isActive && isFlipped ? 0.7 : 0 }}>
+            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: cert.color, marginBottom: 10 }}>Verified</p>
+            <p style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{cert.title}</p>
+            <p style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 14 }}>{cert.issuer} · {cert.date}</p>
+            <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: 'var(--dim)' }}>Tap to flip back</span>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {isActive && <div className="cert3d-reflection" style={{ background: `linear-gradient(180deg, ${cert.color}30, transparent)` }} />}
+    </motion.div>
+  );
+}
+
+function Certifications() {
+  const total = CERTIFICATIONS.length;
+  const cardWidth = useCertLayout();
+  const cardHeight = Math.round(Math.min(380, Math.max(260, cardWidth * 1.18)));
+  const spacing = cardWidth * 0.6;
+
+  const x = useMotionValue(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const dragControls = useDragControls();
+  const dragDistRef = useRef(0);
+  const activeIndexRef = useRef(0);
+
+  useEffect(() => { activeIndexRef.current = activeIndex; }, [activeIndex]);
+  useEffect(() => { x.set(-activeIndexRef.current * spacing); }, [spacing]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const goTo = useCallback((idx) => {
+    const clamped = Math.max(0, Math.min(total - 1, idx));
+    setActiveIndex(clamped);
+    setFlipped(false);
+    animate(x, -clamped * spacing, { type: 'spring', stiffness: 300, damping: 32, mass: 0.7 });
+  }, [spacing, total, x]);
+
+  const safe = (fn) => (...args) => { if (Math.abs(dragDistRef.current) > 6) return; fn(...args); };
+
+  const handleDragEnd = (e, info) => {
+    let idx = Math.round(-x.get() / spacing);
+    if (info.velocity.x < -420) idx += 1;
+    else if (info.velocity.x > 420) idx -= 1;
+    goTo(idx);
+    requestAnimationFrame(() => { dragDistRef.current = 0; });
+  };
+
+  const activeCert = CERTIFICATIONS[activeIndex];
+
+  return (
+    <section id="certifications" className="sec" style={{ background: '#0d0f19', position: 'relative', borderBottom: '1px solid rgba(255,255,255,0.04)', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(129,140,248,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(129,140,248,0.015) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none' }} />
       <div className="ct" style={{ position: 'relative', zIndex: 1 }}>
         <FadeUp>
-          <div style={{ textAlign: 'center', marginBottom: 60 }}>
-            <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em', marginBottom: 12 }}>
-              Certifications
-            </h2>
-            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 13, color: 'var(--dim)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              Continuous Learning
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}>
+            <div>
+              <p className="eyebrow" style={{ marginBottom: 16 }}>06 — Recognition</p>
+              <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
+                Certifications
+              </h2>
+            </div>
+            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)', letterSpacing: '0.08em' }}>
+              {String(total).padStart(2, '0')} earned · always growing
             </p>
           </div>
+          
         </FadeUp>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-          {CERTIFICATIONS.map((cert, i) => (
-            <FadeUp key={cert.title} delay={i * 0.1}>
-              <div className="card" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: `${cert.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
-                    {cert.icon}
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{cert.title}</h3>
-                    <p style={{ fontSize: 13, color: 'var(--muted)' }}>{cert.issuer}</p>
-                  </div>
-                </div>
-                <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: 16 }}>
-                  <span className="chip" style={{ color: cert.color, borderColor: `${cert.color}30`, background: `${cert.color}0a` }}>{cert.badge}</span>
-                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, color: 'var(--dim)' }}>{cert.date}</span>
-                </div>
-              </div>
-            </FadeUp>
-          ))}
+        <div className="cert-stage-wrap">
+          <div className="cert-ambient" style={{ background: `radial-gradient(ellipse, ${activeCert.color}33 0%, transparent 70%)` }} />
+
+          <div className="cert3d-stage" onPointerDown={(e) => dragControls.start(e)}>
+            <motion.div
+              drag="x"
+              dragListener={false}
+              dragControls={dragControls}
+              dragConstraints={{ left: -(total - 1) * spacing, right: 0 }}
+              dragElastic={0.15}
+              onDrag={(e, info) => { dragDistRef.current = info.offset.x; }}
+              onDragEnd={handleDragEnd}
+              style={{ x }}
+              className="cert3d-drag-surface"
+            />
+            {CERTIFICATIONS.map((cert, i) => (
+              <CertCard
+                key={cert.title}
+                cert={cert}
+                index={i}
+                x={x}
+                spacing={spacing}
+                cardWidth={cardWidth}
+                cardHeight={cardHeight}
+                isActive={i === activeIndex}
+                isFlipped={flipped}
+                onFlip={safe(() => setFlipped(f => !f))}
+                onJump={safe(goTo)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="cert-nav-row">
+          <button className="cert-nav-btn" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} aria-label="Previous">
+            <FiChevronLeft size={18} />
+          </button>
+          <div className="cert-dots">
+            {CERTIFICATIONS.map((cert, i) => (
+              <span
+                key={cert.title}
+                className={`cert-dot${i === activeIndex ? ' active' : ''}`}
+                style={i === activeIndex ? { background: cert.color } : undefined}
+                onClick={() => goTo(i)}
+              />
+            ))}
+          </div>
+          <button className="cert-nav-btn" onClick={() => goTo(activeIndex + 1)} disabled={activeIndex === total - 1} aria-label="Next">
+            <FiChevronRight size={18} />
+          </button>
         </div>
       </div>
     </section>
@@ -2182,13 +2390,150 @@ function Certifications() {
 // ─── Footer ──────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer style={{ borderTop: '1px solid var(--border)', padding: '32px 0' }}>
-      <div className="ct" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-        <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)' }}>
-          © {new Date().getFullYear()} Sathya Teja
+    <footer
+      id="contact"
+      className="sec"
+      style={{
+        position: "relative",
+        borderTop: "1px solid rgba(255,255,255,0.08)",
+        background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.02))",
+        overflow: "hidden",
+      }}
+    >
+      {/* Background Glow */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          background:
+            "radial-gradient(circle at center, rgba(110,231,183,0.08), transparent 70%)",
+        }}
+      />
+
+      {/* Ghost Text */}
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          fontSize: "clamp(80px,18vw,220px)",
+          fontWeight: 800,
+          letterSpacing: "-0.04em",
+          color: "transparent",
+          WebkitTextStroke: "1px rgba(255,255,255,0.03)",
+          userSelect: "none",
+          pointerEvents: "none",
+          whiteSpace: "nowrap",
+        }}
+      >
+        THANK YOU
+      </div>
+
+      <div
+        className="ct"
+        style={{
+          position: "relative",
+          zIndex: 2,
+          textAlign: "center",
+          maxWidth: 720,
+        }}
+      >
+        <p
+          className="eyebrow"
+          style={{
+            justifyContent: "center",
+            marginBottom: 24,
+          }}
+        >
+          END OF JOURNEY
         </p>
-        <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)' }}>
-          Built with React + Framer Motion
+
+        <h2
+          style={{
+            fontSize: "clamp(38px,5vw,60px)",
+            fontWeight: 700,
+            letterSpacing: "-0.04em",
+            marginBottom: 18,
+          }}
+        >
+          Let's Build Something Together.
+        </h2>
+
+        <p
+          style={{
+            color: "rgba(255,255,255,0.55)",
+            fontSize: 16,
+            lineHeight: 1.8,
+            maxWidth: 560,
+            margin: "0 auto 40px",
+          }}
+        >
+          Interested in full-stack development, AI, or computer vision?
+          I'm always open to meaningful opportunities and collaborations.
+        </p>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 28,
+            marginBottom: 48,
+          }}
+        >
+          <a href="https://github.com/yourusername">
+            <FiGithub size={22} />
+          </a>
+
+          <a href="https://linkedin.com/in/yourusername">
+            <FiLinkedin size={22} />
+          </a>
+
+          <a href="mailto:youremail@gmail.com">
+            <FiMail size={22} />
+          </a>
+        </div>
+
+        <div
+          style={{
+            width: 80,
+            height: 1,
+            background: "rgba(255,255,255,0.08)",
+            margin: "0 auto 28px",
+          }}
+        />
+
+        <h3
+          style={{
+            fontSize: 24,
+            letterSpacing: "-0.02em",
+            marginBottom: 8,
+          }}
+        >
+          Panyam Sathya Teja
+        </h3>
+
+        <p
+          style={{
+            color: "rgba(255,255,255,0.4)",
+            fontFamily: "var(--fn-mono)",
+            fontSize: 12,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+          }}
+        >
+          Full Stack Developer • AI Engineer
+        </p>
+
+        <p
+          style={{
+            marginTop: 40,
+            color: "rgba(255,255,255,0.28)",
+            fontSize: 13,
+          }}
+        >
+          © 2026 Panyam Sathya Teja. All Rights Reserved.
         </p>
       </div>
     </footer>
