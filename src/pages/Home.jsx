@@ -483,17 +483,30 @@ const CSS = `
   .blink { animation:blink 1s step-end infinite; }
   @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 
-  @media(max-width:900px){
-    .hero-grid { grid-template-columns:1fr !important; }
-    .hero-right { display:none !important; }
-    .about-grid { grid-template-columns:1fr !important; }
-    .contact-grid { grid-template-columns:1fr !important; }
+  @media(max-width:1024px){
     .desk-nav { display:none !important; }
     .mob-btn { display:block !important; }
+    
+    .hero-grid { grid-template-columns:1fr !important; text-align: center; gap: 2rem !important; min-height: auto !important; padding-top: 2rem; }
+    .hero-grid > div:first-child { display: flex; flex-direction: column; align-items: center; }
+    .hero-grid p { text-align: center; margin-inline: auto; }
+    .hero-grid > div > div { justify-content: center; }
+    .hero-right { max-width: 250px; margin: 0 auto 2rem; }
+    
+    .about-grid { grid-template-columns:1fr !important; gap: 3rem !important; }
+    .contact-grid { grid-template-columns:1fr !important; }
+    
+    /* Keep 2 columns on tablet, but tighten spacing and size to fit in 100dvh */
+    .scene-inner { grid-template-columns: 1.05fr 0.95fr !important; gap: 2rem !important; align-items: center; }
+    .scene-visual { max-width: 100% !important; margin: 0; }
+  }
+  
+  @media(max-width:768px){
+    /* 1 Column stack for standard flow mobile views */
     .scene-inner { grid-template-columns:1fr !important; text-align:center; }
-    .scene-visual { order:-1; max-width:260px !important; margin:0 auto 1.5rem; }
+    .scene-visual { order:-1; max-width:320px !important; margin:0 auto 1.5rem; }
     .scene-features { display:none !important; }
-    .scene-bgword { font-size: 22vw !important; }
+    .scene-bgword { font-size: 26vw !important; }
   }
   @media(prefers-reduced-motion:reduce){
     *,*::before,*::after { animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
@@ -609,9 +622,10 @@ const CSS = `
     transition: all 0.35s;
   }
   .scene-dot.active { background: var(--accent); box-shadow: 0 0 12px rgba(110,231,183,0.6); }
-  @media(max-width:900px){
+  @media(max-width:1024px){
     .scene-side-nav { display: none; }
-    .project-text-col { height: auto; max-height: none; }
+    .project-text-col { height: clamp(400px, 55dvh, 600px); max-height: none; align-items: flex-start; }
+    .project-scene-title { font-size: clamp(28px, 3.5vw, 42px) !important; flex-shrink: 0; min-height: auto !important; max-height: none !important; }
     .project-scene-features { height: auto; max-height: 100px; }
   }
 
@@ -676,7 +690,7 @@ const CSS = `
     border-radius: 16px;
     padding: 20px 22px;
   }
-  @media(max-width:900px){
+  @media(max-width:1024px){
     .proj-overview-grid { grid-template-columns: 1fr !important; gap: 3rem !important; }
   }
 
@@ -826,15 +840,15 @@ const CSS = `
     50%      { opacity:0.4; transform:scale(0.7); }
   }
 
-  @media(max-width:900px){
+  @media(max-width:1024px){
     .sko-grid { grid-template-columns:1fr !important; gap:3rem !important; }
   }
-  @media(max-width:720px){
+  @media(max-width:768px){
     .about-grid { grid-template-columns:1fr !important; }
     .skill-grid-compact { grid-template-columns:repeat(2,1fr); }
   }
   @media(max-width:480px){
-    .skill-grid-compact { grid-template-columns:1fr 1fr; }
+    .skill-grid-compact { grid-template-columns:1fr; }
   }
     /* ── Certifications: 3D coverflow ── */
   .cert-stage-wrap { position: relative; padding: 20px 0 0; }
@@ -1017,9 +1031,21 @@ function Loader({ onDone }) {
   );
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return isMobile;
+}
+
 // ─── Navbar ──────────────────────────────────────────────────────
 function Navbar({ progress }) {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -1028,47 +1054,87 @@ function Navbar({ progress }) {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <header style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: scrolled ? 'rgba(6,9,18,0.82)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(24px)' : 'none',
-      borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
-      transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-    }}>
-      <motion.div style={{ scaleX: progress, transformOrigin: 'left', position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
-      <div className="ct" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBlock: scrolled ? '14px' : '20px', transition: 'padding 0.3s' }}>
-        <a href="#hero" style={{ fontFamily: 'var(--fn-mono)', fontSize: 14, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text)' }}>
-          ST<span style={{ color: 'var(--accent)' }}>.</span>
-        </a>
-        <nav className="desk-nav" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-          {NAV.map(n => (
-            <a key={n} href={n === 'Home' ? '#hero' : `#${n.toLowerCase()}`} style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', transition: 'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}
-            >{n}</a>
-          ))}
-        </nav>
-        <a href="#contact" className="desk-nav" style={{
-          fontFamily: 'var(--fn-mono)', fontSize: 11, padding: '7px 18px', borderRadius: 6,
-          border: '1px solid var(--border-hi)', color: 'var(--text)',
-          letterSpacing: '0.08em', transition: 'all 0.2s',
-          background: 'rgba(110,231,183,0.06)',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = 'rgba(110,231,183,0.12)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-hi)'; e.currentTarget.style.background = 'rgba(110,231,183,0.06)'; }}
-        >
-          Hire Me
-        </a>
-        <button className="mob-btn" style={{ display: 'none', color: 'var(--text)', padding: 4 }} aria-label="menu">☰</button>
-      </div>
-    </header>
+    <>
+      <header style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        background: scrolled ? 'rgba(6,9,18,0.82)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(24px)' : 'none',
+        borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+      }}>
+        <motion.div style={{ scaleX: progress, transformOrigin: 'left', position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+        <div className="ct" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBlock: scrolled ? '14px' : '20px', transition: 'padding 0.3s' }}>
+          <a href="#hero" style={{ fontFamily: 'var(--fn-mono)', fontSize: 14, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text)' }} onClick={() => setMenuOpen(false)}>
+            ST<span style={{ color: 'var(--accent)' }}>.</span>
+          </a>
+          <nav className="desk-nav" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+            {NAV.map(n => (
+              <a key={n} href={n === 'Home' ? '#hero' : `#${n.toLowerCase()}`} style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', transition: 'color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}
+              >{n}</a>
+            ))}
+          </nav>
+          <a href="#contact" className="desk-nav" style={{
+            fontFamily: 'var(--fn-mono)', fontSize: 11, padding: '7px 18px', borderRadius: 6,
+            border: '1px solid var(--border-hi)', color: 'var(--text)',
+            letterSpacing: '0.08em', transition: 'all 0.2s',
+            background: 'rgba(110,231,183,0.06)',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = 'rgba(110,231,183,0.12)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-hi)'; e.currentTarget.style.background = 'rgba(110,231,183,0.06)'; }}
+          >
+            Hire Me
+          </a>
+          <button className="mob-btn" style={{ display: 'none', color: 'var(--text)', padding: 4 }} aria-label="menu" onClick={() => setMenuOpen(true)}>
+            ☰
+          </button>
+        </div>
+      </header>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}
+              style={{ position: 'fixed', inset: 0, zIndex: 101, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.div 
+              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(300px, 85vw)', background: '#060912', borderLeft: '1px solid var(--border)', zIndex: 102, display: 'flex', flexDirection: 'column' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+                <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, letterSpacing: '0.1em', color: 'var(--accent)' }}>MENU</span>
+                <button onClick={() => setMenuOpen(false)} style={{ color: 'var(--dim)', padding: 4, fontSize: 24, lineHeight: 1 }}>×</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', padding: '24px', gap: 20, flex: 1, overflowY: 'auto' }}>
+                {NAV.map((n, i) => (
+                  <motion.a key={n} href={n === 'Home' ? '#hero' : `#${n.toLowerCase()}`}
+                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
+                    onClick={() => setMenuOpen(false)}
+                    style={{ fontFamily: 'var(--fn-display)', fontSize: 24, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.02em', borderBottom: '1px solid var(--border)', paddingBottom: 16 }}
+                  >
+                    {n}
+                  </motion.a>
+                ))}
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} style={{ marginTop: 'auto', paddingTop: 24 }}>
+                  <a href="#contact" onClick={() => setMenuOpen(false)} style={{
+                    display: 'block', textAlign: 'center',
+                    fontFamily: 'var(--fn-mono)', fontSize: 13, padding: '12px', borderRadius: 8,
+                    background: 'linear-gradient(135deg,var(--accent),var(--accent2))', color: '#000', fontWeight: 700
+                  }}>Hire Me</a>
+                </motion.div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -1744,9 +1810,71 @@ function SkillScene({ cat, index, total, scrollYProgress }) {
   );
 }
 
+function SkillsMobileView() {
+  return (
+    <div className="ct" style={{ paddingBottom: '60px', display: 'flex', flexDirection: 'column', gap: '80px' }}>
+      {SKILLS.map((cat, i) => (
+        <FadeUp key={cat.id}>
+          <div style={{
+            position: 'relative',
+            background: `radial-gradient(ellipse at 50% 10%, ${cat.accent}14 0%, transparent 60%), #05060b`,
+            padding: '2rem 1.25rem',
+            borderRadius: 20,
+            border: `1px solid ${cat.accent}1a`
+          }}>
+            <p className="eyebrow" style={{ marginBottom: 12 }}>
+              {String(i + 1).padStart(2, '0')} — {String(SKILLS.length).padStart(2, '0')}
+            </p>
+            {cat.featuredProject && (
+              <div className="sko-featured-badge" style={{ color: cat.accent, borderColor: `${cat.accent}40`, background: `${cat.accent}0e`, marginBottom: 12 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: cat.accent, display: 'inline-block' }} />
+                {cat.featuredProject}
+              </div>
+            )}
+            <h2 style={{ fontSize: 32, fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.1, color: '#fff', marginBottom: 14 }}>
+              {cat.title}
+            </h2>
+            <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>
+              {cat.description}
+            </p>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 32 }}>
+              {cat.primaryStack.map(name => (
+                <span key={name} style={{
+                  fontFamily: 'var(--fn-mono)', fontSize: 11, letterSpacing: '0.04em',
+                  padding: '5px 12px', borderRadius: 99,
+                  background: `${cat.accent}12`, border: `1px solid ${cat.accent}30`, color: cat.accent,
+                }}>{name}</span>
+              ))}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(75px, 1fr))', gap: '1.25rem', justifyItems: 'center' }}>
+              {cat.tech.map(t => (
+                <div key={t.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                  <div style={{
+                    width: 60, height: 60, borderRadius: 14,
+                    background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: cat.accent,
+                  }}>
+                    <t.Icon size={28} />
+                  </div>
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, color: 'rgba(255,255,255,0.65)', textAlign: 'center' }}>{t.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </FadeUp>
+      ))}
+    </div>
+  );
+}
+
 function Skills() {
   const pinnedRef = useRef(null);
   const total = SKILLS.length;
+  const isMobile = useIsMobile();
+  
   const { scrollYProgress } = useScroll({
     target: pinnedRef,
     offset: ['start start', 'end end'],
@@ -1765,26 +1893,30 @@ function Skills() {
       {/* Full-screen overview — instant recruiter scan */}
       <SkillsOverview />
 
-      {/* Cinematic pinned scroll — storytelling experience */}
-      <div ref={pinnedRef} style={{ height: `${total * 115}vh`, position: 'relative' }}>
-        <div className="scenes-pin">
-          {SKILLS.map((cat, i) => (
-            <SkillScene key={cat.id} cat={cat} index={i} total={total} scrollYProgress={scrollYProgress} />
-          ))}
+      {isMobile ? (
+        <SkillsMobileView />
+      ) : (
+        /* Cinematic pinned scroll — storytelling experience */
+        <div ref={pinnedRef} style={{ height: `${total * 115}vh`, position: 'relative' }}>
+          <div className="scenes-pin">
+            {SKILLS.map((cat, i) => (
+              <SkillScene key={cat.id} cat={cat} index={i} total={total} scrollYProgress={scrollYProgress} />
+            ))}
 
-          <div className="scene-side-nav">
-            {SKILLS.map((cat, i) => <SceneDotItem key={cat.id} index={i} seg={1 / total} scrollYProgress={scrollYProgress} />)}
-          </div>
-
-          <div className="scene-rail-wrap">
-            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 2 }}>Scroll to Explore</p>
-            <div className="scene-rail">
-              <motion.div style={{ scaleX: scrollYProgress, transformOrigin: 'left', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+            <div className="scene-side-nav">
+              {SKILLS.map((cat, i) => <SceneDotItem key={cat.id} index={i} seg={1 / total} scrollYProgress={scrollYProgress} />)}
             </div>
-            <span className="scene-counter">{String(activeIdx + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}</span>
+
+            <div className="scene-rail-wrap">
+              <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 2 }}>Scroll to Explore</p>
+              <div className="scene-rail">
+                <motion.div style={{ scaleX: scrollYProgress, transformOrigin: 'left', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+              </div>
+              <span className="scene-counter">{String(activeIdx + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
@@ -2162,9 +2294,92 @@ function SceneDotItem({ index, seg, scrollYProgress }) {
   return <span className={`scene-dot${active ? ' active' : ''}`} />;
 }
 
+function ProjectsMobileView() {
+  return (
+    <div className="ct" style={{ paddingBottom: '60px', display: 'flex', flexDirection: 'column', gap: '80px' }}>
+      {PROJECTS.map((p, index) => (
+        <FadeUp key={p.id}>
+          <div style={{
+            position: 'relative',
+            background: `radial-gradient(ellipse at 50% 10%, ${p.accent}14 0%, transparent 80%), #05060b`,
+            padding: '2rem 1.25rem',
+            borderRadius: 20,
+            border: `1px solid ${p.accent}1a`,
+            display: 'flex', flexDirection: 'column', gap: '2rem'
+          }}>
+            {/* Image mock */}
+            <div className="scene-mock" style={{ margin: '0 0.5rem' }}>
+              <div className="scene-mock-bar" style={{ padding: '8px 12px' }}>
+                <span className="scene-mock-dot" style={{ background: '#ff5f57', width: 7, height: 7 }} />
+                <span className="scene-mock-dot" style={{ background: '#febc2e', width: 7, height: 7 }} />
+                <span className="scene-mock-dot" style={{ background: '#28c840', width: 7, height: 7 }} />
+              </div>
+              <div style={{ aspectRatio: '16/9', position: 'relative', overflow: 'hidden' }}>
+                {p.image ? (
+                  <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ 
+                    position: 'absolute', inset: 0, 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                    fontSize: 72, color: `${p.accent}60`, background: `${p.accent}10` 
+                  }}>
+                    {p.glyph}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Content block */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, fontWeight: 700, color: p.accent }}>
+                  {String(index + 1).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')}
+                </span>
+                <span style={{ position: 'relative', top: -1 }} className="chip">{p.subtitle}</span>
+              </div>
+              <h3 style={{ fontSize: 26, fontWeight: 700, lineHeight: 1.1, color: '#fff', marginBottom: 4 }}>
+                {p.title}
+              </h3>
+              <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, color: 'var(--dim)', marginBottom: 16 }}>
+                {p.year}
+              </p>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.6)', marginBottom: 20 }}>
+                {p.description}
+              </p>
+              
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <span style={{ width: 18, height: 1, background: p.accent, opacity: 0.5 }} />
+                <span style={{ fontFamily: "var(--fn-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,.55)" }}>Tech Stack</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 26 }}>
+                {p.tech.map(t => <span key={t} className="chip">{t}</span>)}
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                {p.demo && (
+                  <a href={p.demo} target="_blank" rel="noopener noreferrer" className="scene-link-btn" style={{ background: p.accent, color: "#060912" }}>
+                    <FiPlay size={13} /> Live Demo
+                  </a>
+                )}
+                {p.github && (
+                  <a href={p.github} target="_blank" rel="noopener noreferrer" className="scene-link-btn" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--border-hi)", color: "rgba(255,255,255,0.8)" }}>
+                    <FiGithub size={13} /> Source Code
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </FadeUp>
+      ))}
+    </div>
+  );
+}
+
 function Projects() {
   const containerRef = useRef(null);
   const total = PROJECTS.length;
+  const isMobile = useIsMobile();
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
@@ -2182,27 +2397,31 @@ function Projects() {
     <section id="projects" style={{ position: 'relative', background: '#030408' }}>
       <ProjectsOverview />
 
-      <div ref={containerRef} style={{ height: `${total * 130}vh`, position: 'relative' }}>
-        <div className="scenes-pin">
+      {isMobile ? (
+        <ProjectsMobileView />
+      ) : (
+        <div ref={containerRef} style={{ height: `${total * 130}vh`, position: 'relative' }}>
+          <div className="scenes-pin">
 
-          {PROJECTS.map((p, i) => (
-            <ProjectScene key={p.id} p={p} index={i} total={total} scrollYProgress={scrollYProgress} />
-          ))}
+            {PROJECTS.map((p, i) => (
+              <ProjectScene key={p.id} p={p} index={i} total={total} scrollYProgress={scrollYProgress} />
+            ))}
 
-          <div className="scene-side-nav">
-            {PROJECTS.map((p, i) => <SceneDotItem key={p.id} index={i} seg={1 / total} scrollYProgress={scrollYProgress} />)}
-          </div>
-
-          <div className="scene-rail-wrap">
-            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 2 }}>Scroll to Explore</p>
-            <div className="scene-rail">
-              <motion.div style={{ scaleX: scrollYProgress, transformOrigin: 'left', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+            <div className="scene-side-nav">
+              {PROJECTS.map((p, i) => <SceneDotItem key={p.id} index={i} seg={1 / total} scrollYProgress={scrollYProgress} />)}
             </div>
-            <span className="scene-counter">{String(activeIdx + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}</span>
-          </div>
 
+            <div className="scene-rail-wrap">
+              <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 2 }}>Scroll to Explore</p>
+              <div className="scene-rail">
+                <motion.div style={{ scaleX: scrollYProgress, transformOrigin: 'left', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent2))' }} />
+              </div>
+              <span className="scene-counter">{String(activeIdx + 1).padStart(2, '0')} — {String(total).padStart(2, '0')}</span>
+            </div>
+
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
