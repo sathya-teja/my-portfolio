@@ -1,4 +1,4 @@
-import { useState, useEffect ,useLayoutEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect ,useLayoutEffect, useRef, useCallback } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring, LayoutGroup, animate, useDragControls } from 'framer-motion';
 import { FiGithub, FiLinkedin, FiMail, FiArrowUpRight, FiDownload, FiPlay, FiCode, FiCpu, FiCloud, FiDatabase,FiChevronLeft,FiChevronRight,FiInstagram, FiBriefcase, FiUsers, FiCheckCircle, FiClock } from 'react-icons/fi';
 import { 
@@ -8,6 +8,7 @@ import {
   SiPython, SiOpencv, SiNumpy, SiPandas, SiScikitlearn, SiTensorflow,
   SiDocker, SiGit, SiLinux, SiPostman,
 } from 'react-icons/si';
+import emailjs from '@emailjs/browser';
 import campusEventHubImg from '../assets/images/campus-event-hub.png';
 import medigoImg from '../assets/images/medigo.png';
 import medigoAdminImg from '../assets/images/medigo-admin.png';
@@ -15,6 +16,10 @@ import heartSenseAIImg from '../assets/images/heartsense.png';
 import fashionStoreImg from '../assets/images/fashion-store.png';
 import ieeeImg from '../assets/images/ieee.png';
 import sathyaImg from '../assets/images/sathyateja.jpeg';
+import azureLogo from '../assets/images/azure.jpg';
+import ibmLogo from '../assets/images/ibm.png';
+import nptelLogo from '../assets/images/nptel.png';
+
 
 
 // ─── Math Utils ──────────────────────────────────────────────────
@@ -359,7 +364,9 @@ const CERTIFICATIONS = [
     badge: 'AI-900',
     date: '2025',
     color: '#0ea5e9',
-    icon: '☁️'
+    icon: '☁️',      // fallback if logo fails/missing
+    logo: azureLogo,  // ← your actual logo image
+    credentialUrl:'https://learn.microsoft.com/api/credentials/share/en-gb/SathyaTeja-9065/46409D1813232218?sharingId=B50869FA8B8E977F'
   },
   {
     title: 'Artificial Intelligence Fundamentals',
@@ -367,7 +374,9 @@ const CERTIFICATIONS = [
     badge: 'Certified',
     date: '2025',
     color: '#2563eb',
-    icon: '🤖'
+    icon: '🤖',
+    logo: ibmLogo,
+    credentialUrl:'https:www.credly.com/badges/ef6f2e4d-cdaa-4002-a571-86bba7edd28d/public_url'
   },
   {
     title: 'Privacy and Security in Online Social Media',
@@ -375,9 +384,12 @@ const CERTIFICATIONS = [
     badge: 'Elite',
     date: '2024',
     color: '#8b5cf6',
-    icon: '🔒'
+    icon: '🔒',
+    logo: nptelLogo,
+    credentialUrl:'https://drive.google.com/file/d/1YEvh9pEdx0jee85Zph0va7pPuewBb9QV/view?usp=sharing'
   }
 ];
+
 
 const NAV = ['Home', 'About', 'Skills', 'Projects', 'Experience', 'Certifications', 'Contact'];
 
@@ -501,12 +513,31 @@ const CSS = `
     .scene-visual { max-width: 100% !important; margin: 0; }
   }
   
+  .exp-header { flex: 1; display: flex; justify-content: space-between; align-items: flex-start; }
+  .exp-sticky { position: sticky; top: 120px; }
+  .exp-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cert-container { padding-top: 120px; padding-bottom: 120px; }
+
+  @media(max-width:1024px){
+    .exp-sticky { position: static; top: auto; }
+  }
+
   @media(max-width:768px){
     /* 1 Column stack for standard flow mobile views */
     .scene-inner { grid-template-columns:1fr !important; text-align:center; }
     .scene-visual { order:-1; max-width:320px !important; margin:0 auto 1.5rem; }
     .scene-features { display:none !important; }
     .scene-bgword { font-size: 26vw !important; }
+  }
+
+  @media(max-width:480px){
+    .exp-header { flex-direction: column; gap: 6px; }
+    .exp-header > div:last-child { text-align: left !important; }
+    .exp-stats-grid { grid-template-columns: 1fr; }
+    .cert-container { padding-top: 40px; padding-bottom: 40px; }
+    .cert-stage-wrap { padding-top: 0; }
+    .cert-nav-row { margin-top: 20px; gap: 8px !important; }
+    .cert-nav-btn { width: 38px; height: 38px; }
   }
   @media(prefers-reduced-motion:reduce){
     *,*::before,*::after { animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
@@ -682,7 +713,7 @@ const CSS = `
     gap: 5rem;
     align-items: center;
     min-height: 100dvh;
-    padding: 120px 0 80px;
+    padding-top: 120px; padding-bottom: 80px;
   }
   .proj-stat-card {
     background: rgba(255,255,255,0.025);
@@ -769,7 +800,7 @@ const CSS = `
     gap: 5rem;
     align-items: center;
     min-height: 100dvh;
-    padding: 120px 0 80px;
+    padding-top: 120px; padding-bottom: 80px;
   }
   .sko-cat-row {
     display: flex;
@@ -903,6 +934,12 @@ const CSS = `
     transition: width 0.35s, background 0.35s;
   }
   .cert-dot.active { width: 22px; }
+
+  @media (max-width:480px){
+  .ct{
+    padding-inline:16px;
+  }
+}
 `;
 
 // ─── Hooks ────────────────────────────────────────────────────────
@@ -948,7 +985,7 @@ function FadeUp({ children, delay = 0, style, className }) {
 
 
 // ─── Magnetic Button ──────────────────────────────────────────────
-function MagneticBtn({ children, href, primary, onClick, style: extraStyle = {} }) {
+function MagneticBtn({ children, href, primary, onClick,download,target,rel, style: extraStyle = {} }) {
   const ref = useRef(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
@@ -986,7 +1023,13 @@ function MagneticBtn({ children, href, primary, onClick, style: extraStyle = {} 
   };
 
   return (
-    <a ref={ref} href={href} onClick={onClick}
+    <a
+  ref={ref}
+  href={href}
+  onClick={onClick}
+  download={download}
+  target={target}
+  rel={rel}
        onMouseMove={onMove} onMouseLeave={onLeave}
        onMouseEnter={hoverIn} onMouseOut={hoverOut}
        style={{ ...base, ...themed }}>
@@ -1106,18 +1149,84 @@ function Navbar({ progress }) {
             />
             <motion.div 
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(300px, 85vw)', background: '#060912', borderLeft: '1px solid var(--border)', zIndex: 102, display: 'flex', flexDirection: 'column' }}
+              style={{
+  position: 'fixed',
+  top: 0,
+  right: 0,
+  bottom: 0,
+
+  width: '100%',
+maxWidth: '100%',
+
+  background: '#060912',
+
+  borderLeft: '1px solid rgba(255,255,255,.08)',
+
+  boxShadow: '-20px 0 60px rgba(0,0,0,.45)',
+
+  zIndex: 102,
+
+  display: 'flex',
+  flexDirection: 'column'
+}}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, letterSpacing: '0.1em', color: 'var(--accent)' }}>MENU</span>
-                <button onClick={() => setMenuOpen(false)} style={{ color: 'var(--dim)', padding: 4, fontSize: 24, lineHeight: 1 }}>×</button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', padding: '24px', gap: 20, flex: 1, overflowY: 'auto' }}>
+<button
+  onClick={() => setMenuOpen(false)}
+  style={{
+    width: 36,
+    height: 36,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    color: "var(--dim)",
+
+    borderRadius: 10,
+
+    background: "rgba(255,255,255,.03)",
+
+    border: "1px solid rgba(255,255,255,.06)",
+
+    fontSize: 20,
+
+    transition: ".25s"
+  }}
+>
+  ×
+</button>              </div>
+              <div style={{
+    display: 'flex',
+    flexDirection: 'column',
+
+    padding: '20px',
+
+    gap: 8,
+
+    flex: 1,
+
+    overflowY: 'auto'
+  }}>
                 {NAV.map((n, i) => (
                   <motion.a key={n} href={n === 'Home' ? '#hero' : `#${n.toLowerCase()}`}
                     initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
                     onClick={() => setMenuOpen(false)}
-                    style={{ fontFamily: 'var(--fn-display)', fontSize: 24, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.02em', borderBottom: '1px solid var(--border)', paddingBottom: 16 }}
+                    style={{
+    fontFamily: 'var(--fn-display)',
+
+    fontSize: 20,
+
+    fontWeight: 600,
+
+    color: 'var(--text)',
+
+    letterSpacing: '-0.02em',
+
+    padding: '14px 0',
+
+    borderBottom: '1px solid rgba(255,255,255,.05)',
+}}
                   >
                     {n}
                   </motion.a>
@@ -1140,6 +1249,7 @@ function Navbar({ progress }) {
 
 // ─── Hero ────────────────────────────────────────────────────────
 function Hero({ aboutInView }) {
+  const isMobile = useIsMobile();
   const ref = useRef(null);
   const mouse = useMouse();
   const { scrollY } = useScroll();
@@ -1228,7 +1338,7 @@ const ROLES = [
                       initial={{ y: '110%', opacity: 0 }}
                       animate={{ y: '0%', opacity: 1 }}
                       transition={{ duration: 0.65, delay: 0.22 + i * 0.045, ease: [0.16, 1, 0.3, 1] }}
-                      style={{ display: 'inline-block', fontSize: 'clamp(50px,6.5vw,84px)', fontWeight: 700, letterSpacing: '-0.04em', color: '#fff' }}>
+                      style={{ display: 'inline-block', fontSize: 'clamp(36px,12vw,84px)', fontWeight: 700, letterSpacing: '-0.04em', color: '#fff' }}>
                       {ch}
                     </motion.span>
                   ))}
@@ -1243,7 +1353,7 @@ const ROLES = [
                       transition={{ duration: 0.7, delay: 0.34 + i * 0.04, ease: [0.16, 1, 0.3, 1] }}
                       style={{
                         display: 'inline-block',
-                        fontSize: 'clamp(50px,6.5vw,84px)', fontWeight: 700, letterSpacing: '-0.04em',
+                        fontSize: 'clamp(36px,12vw,84px)', fontWeight: 700, letterSpacing: '-0.04em',
                         background: 'linear-gradient(135deg,var(--accent) 0%,var(--accent2) 50%,#f0abfc 100%)',
                         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                       }}>
@@ -1276,9 +1386,13 @@ const ROLES = [
               <MagneticBtn href="#projects" primary>
                 View Work <FiArrowUpRight size={14} />
               </MagneticBtn>
-              <MagneticBtn href="#">
-                <FiDownload size={14} /> Resume
-              </MagneticBtn>
+              <MagneticBtn
+  href="/Sathya_Teja_Resume.pdf"
+  download="Sathya_Teja_Resume.pdf"
+>
+  <FiDownload size={14} />
+  Resume
+</MagneticBtn>
             </motion.div>
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.05 }}
@@ -1300,11 +1414,13 @@ const ROLES = [
           </div>
 
           <div className="hero-right" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <AnimatePresence mode="wait">
-              {!aboutInView && (
-                <PhotoCard key="hero-photo" inHero mx={mx} my={my} />
-              )}
-            </AnimatePresence>
+            {!isMobile && (
+              <AnimatePresence mode="wait">
+                {!aboutInView && (
+                  <PhotoCard key="hero-photo" inHero mx={mx} my={my} isMobile={isMobile} />
+                )}
+              </AnimatePresence>
+            )}
           </div>
 
         </div>
@@ -1321,7 +1437,7 @@ const ROLES = [
 }
 
 // ─── PhotoCard (shared layout between Hero and About) ────────────
-function PhotoCard({ inHero, mx = 0, my = 0 }) {
+function PhotoCard({ inHero, mx = 0, my = 0, isMobile = false }) {
   const springTransition = {
     layout: { type: "spring", stiffness: 80, damping: 20, mass: 0.8 },
     opacity: { duration: 0.5, ease: "easeOut" },
@@ -1359,8 +1475,8 @@ function PhotoCard({ inHero, mx = 0, my = 0 }) {
 
   return (
     <motion.div
-      layoutId="profile-photo-card"
-      layout
+      layoutId={!isMobile ? "profile-photo-card" : undefined}
+      layout={!isMobile}
       transition={springTransition}
       variants={cardVariants}
       initial="initial"
@@ -1384,8 +1500,8 @@ function PhotoCard({ inHero, mx = 0, my = 0 }) {
 
       {/* Card frame */}
       <motion.div
-        layoutId="profile-photo-frame"
-        layout
+        layoutId={!isMobile ? "profile-photo-frame" : undefined}
+        layout={!isMobile}
         transition={springTransition}
         style={{
           position: 'relative', borderRadius: 20,
@@ -1395,9 +1511,10 @@ function PhotoCard({ inHero, mx = 0, my = 0 }) {
           boxShadow: inHero
             ? '0 0 40px rgba(110,231,183,0.1)'
             : '0 0 40px rgba(99,102,241,0.1)',
-          transform: inHero
-            ? `perspective(1000px) rotateY(${mx * 8}deg) rotateX(${-my * 6}deg)`
-            : 'none',
+          transform:
+  inHero && !isMobile
+    ? "perspective(1000px)"
+    : "none",
           transition: 'transform 0.15s ease-out',
         }}
       >
@@ -1416,8 +1533,8 @@ function PhotoCard({ inHero, mx = 0, my = 0 }) {
 
         {/* Photo */}
         <motion.div
-          layoutId="profile-photo-img"
-          layout
+          layoutId={!isMobile ? "profile-photo-img" : undefined}
+          layout={!isMobile}
           transition={springTransition}
           style={{ borderRadius: 16, overflow: 'hidden', aspectRatio: '4/4.5', background: '#151822' }}
         >
@@ -1456,6 +1573,7 @@ function PhotoCard({ inHero, mx = 0, my = 0 }) {
 
 // ─── About ────────────────────────────────────────────────────────
 function About({ onInViewChange }) {
+  const isMobile = useIsMobile();
   const ref = useRef(null);
   const textInView = useInView(ref, { once: true, margin: '-80px' });
   const layoutInView = useInView(ref, { margin: '0px 0px -30% 0px' });
@@ -1551,11 +1669,15 @@ function About({ onInViewChange }) {
           </FadeUp>
 
           <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', paddingTop: 14, paddingBottom: 14 }}>
-            <AnimatePresence mode="wait">
-              {layoutInView && (
-                <PhotoCard key="about-photo" />
-              )}
-            </AnimatePresence>
+            {!isMobile ? (
+              <AnimatePresence mode="wait">
+                {layoutInView && (
+                  <PhotoCard key="about-photo" isMobile={false} />
+                )}
+              </AnimatePresence>
+            ) : (
+              textInView && <PhotoCard key="about-photo-mobile" inHero={false} isMobile={true} />
+            )}
           </div>
 
         </div>
@@ -1595,7 +1717,7 @@ function SkillsOverview() {
       <div style={{ position: 'absolute', top: '10%', left: '-10%', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(110,231,183,0.07) 0%,transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: '5%', right: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(129,140,248,0.06) 0%,transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
 
-      <div className="ct sko-grid" style={{ minHeight: '100dvh', display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: '5rem', alignItems: 'center', padding: '120px 0 80px' }}>
+      <div className="ct sko-grid" style={{ minHeight: '100dvh', display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: '5rem', alignItems: 'center', paddingTop: 120, paddingBottom: 80 }}>
         {/* ── Left: heading + category chips ── */}
         <div>
           <motion.div
@@ -2451,7 +2573,7 @@ function Experience() {
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', flexShrink: 0, fontFamily: 'var(--fn-mono)', fontWeight: 600, fontSize: 18 }}>
                       {exp.company.charAt(0)}
                     </div>
-                    <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div className="exp-header">
                       <div>
                         <h3 style={{ fontSize: 18, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{exp.role}</h3>
                         <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 13, color: 'var(--accent)' }}>{exp.company}</p>
@@ -2471,9 +2593,9 @@ function Experience() {
             ))}
           </div>
 
-          <div style={{ position: 'sticky', top: 120 }}>
+          <div className="exp-sticky">
             <FadeUp delay={0.2}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="exp-stats-grid">
                 <StatCard label="Experiences" value={2} suffix="" color="var(--accent)" inView={inView} Icon={FiBriefcase} />
                 <StatCard label="Leadership Roles" value={1} suffix="" color="var(--accent2)" inView={inView} Icon={FiUsers} />
                 <StatCard label="Projects Delivered" value={6} suffix="+" color="var(--red)" inView={inView} Icon={FiCheckCircle} />
@@ -2501,7 +2623,7 @@ function Contact() {
 
   const addLine = (txt, delay = 0) => setTimeout(() => setLines(l => [...l, txt]), delay);
 
-  const submit = async () => {
+ const submit = async () => {
     if (!form.name || !form.email || !form.message) {
       addLine('> Error: All fields are required.');
       return;
@@ -2513,9 +2635,34 @@ function Contact() {
     addLine('> Establishing TLS connection...', 1200);
     addLine('> Encrypting payload...', 1800);
     addLine('> Transmitting message...', 2400);
-    await new Promise(r => setTimeout(r, 3200));
-    addLine('> ✓ Message delivered. [200 OK]', 3200);
-    setStatus('done');
+
+   try {
+      await emailjs.send(
+  import.meta.env.VITE_EMAILJS_SERVICE_ID,
+  import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+  {
+    name: form.name,
+    email: form.email,
+    message: form.message,
+    time: new Date().toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }),
+  },
+  import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+);
+
+      setTimeout(() => {
+        addLine('> ✓ Message delivered. [200 OK]');
+        setStatus('done');
+      }, 3200);
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      setTimeout(() => {
+        addLine('> ✗ Error: Transmission failed. [500]');
+        setStatus('idle');
+      }, 3200);
+    }
   };
 
   return (
@@ -2615,9 +2762,9 @@ function Contact() {
           <FadeUp delay={0.2}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
-                { Icon: FiGithub, label: 'GitHub', value: 'github.com/sathyateja', href: 'https://github.com/' },
-                { Icon: FiLinkedin, label: 'LinkedIn', value: 'in/sathyateja', href: 'https://linkedin.com/' },
-                { Icon: FiMail, label: 'Email', value: 'hello@sathyateja.dev', href: 'mailto:hello@sathyateja.dev' },
+                { Icon: FiGithub, label: 'GitHub', value: 'https://github.com/sathya-teja', href: 'https://github.com/sathya-teja' },
+                { Icon: FiLinkedin, label: 'LinkedIn', value: 'https://www.linkedin.com/in/panyam-sathya-teja', href: 'https://www.linkedin.com/in/panyam-sathya-teja/' },
+                { Icon: FiMail, label: 'Email', value: 'panyamsathyateja@gmail.com', href: 'mailto:panyamsathyateja@gmail.com' },
               ].map(({ Icon, label, value, href }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                   className="card"
@@ -2630,7 +2777,16 @@ function Contact() {
                   </div>
                   <div>
                     <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, color: 'var(--dim)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 3 }}>{label}</p>
-                    <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>{value}</p>
+                    <p
+  style={{
+    fontSize: 14,
+    color: "rgba(255,255,255,0.7)",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
+  }}
+>
+  {value}
+</p>
                   </div>
                   <FiArrowUpRight size={14} color="var(--dim)" style={{ marginLeft: 'auto' }} />
                 </a>
@@ -2697,48 +2853,214 @@ function CertCard({ cert, index, x, spacing, cardWidth, cardHeight, isActive, is
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
         style={{ width: '100%', height: '100%', position: 'relative', transformStyle: 'preserve-3d' }}
       >
-        {/* Front */}
-        <div className="cert3d-face" style={{
-          borderColor: `${cert.color}40`,
-          boxShadow: isActive ? `0 30px 70px -24px ${cert.color}55, 0 0 0 1px ${cert.color}25` : `0 18px 40px -20px rgba(0,0,0,0.6)`,
-        }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${cert.color}, transparent)` }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-            <div style={{ width: 50, height: 50, borderRadius: 14, background: `${cert.color}15`, border: `1px solid ${cert.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
-              {cert.icon}
+        {/* ── Front ── */}
+        <div
+          style={{
+            position: 'absolute', inset: 0,
+            backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+            borderRadius: 22, padding: 1.5,
+            background: `linear-gradient(155deg, ${cert.color}80, ${cert.color}10 40%, rgba(255,255,255,0.06) 100%)`,
+            boxShadow: isActive
+              ? `0 40px 90px -28px ${cert.color}70, 0 0 0 1px ${cert.color}20, 0 4px 24px rgba(0,0,0,0.4)`
+              : `0 18px 44px -22px rgba(0,0,0,0.65)`,
+            transition: 'box-shadow 0.4s',
+          }}
+        >
+          <div style={{
+            position: 'relative', width: '100%', height: '100%', borderRadius: 21, overflow: 'hidden',
+            background: 'linear-gradient(165deg, rgba(22,24,36,0.92), rgba(10,11,18,0.97))',
+            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            display: 'flex', flexDirection: 'column', padding: '26px 24px 22px',
+          }}>
+            {/* decorative blurred glows */}
+            <div style={{ position: 'absolute', top: -60, right: -60, width: 180, height: 180, borderRadius: '50%', background: `radial-gradient(circle, ${cert.color}45 0%, transparent 70%)`, filter: 'blur(20px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -80, left: -50, width: 160, height: 160, borderRadius: '50%', background: `radial-gradient(circle, ${cert.color}20 0%, transparent 70%)`, filter: 'blur(24px)', pointerEvents: 'none' }} />
+
+            {/* top row: glass icon + verified pill */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 22 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 16,
+                background: `linear-gradient(155deg, ${cert.color}2e, rgba(255,255,255,0.03))`,
+                border: `1px solid ${cert.color}45`,
+                backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: `inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 20px -8px ${cert.color}50`,
+                overflow: 'hidden',
+              }}>
+                {cert.logo ? (
+                  <img
+                    src={cert.logo}
+                    alt={cert.issuer}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: 16 }}
+                    onError={e => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <span style={{
+                  display: cert.logo ? 'none' : 'flex',
+                  width: '100%', height: '100%',
+                  alignItems: 'center', justifyContent: 'center',
+                  fontSize: 24,
+                }}>
+                  {cert.icon}
+                </span>
+              </div>
+
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '5px 11px 5px 8px', borderRadius: 99,
+                background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.28)',
+                backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+              }}>
+                <FiCheckCircle size={11} color="#4ade80" />
+                <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, letterSpacing: '0.06em', color: '#4ade80', fontWeight: 600 }}>
+                  Verified
+                </span>
+              </div>
             </div>
-            <span className="chip" style={{ color: cert.color, borderColor: `${cert.color}35`, background: `${cert.color}0c` }}>{cert.badge}</span>
-          </div>
-          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: 8 }}>{cert.title}</h3>
-          <p style={{ fontSize: 13, color: 'var(--muted)' }}>{cert.issuer}</p>
-          <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-            <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, color: 'var(--dim)' }}>{cert.date}</span>
-            {isActive && <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: cert.color }}>Tap to flip ⟲</span>}
+
+            {/* content */}
+            <div style={{ position: 'relative', flex: 1 }}>
+              <span className="chip" style={{ color: cert.color, borderColor: `${cert.color}40`, background: `${cert.color}12`, marginBottom: 14, display: 'inline-block' }}>
+                {cert.badge}
+              </span>
+              <h3 style={{ fontSize: 19, fontWeight: 700, color: '#fff', lineHeight: 1.3, letterSpacing: '-0.015em', marginBottom: 8 }}>
+                {cert.title}
+              </h3>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.01em' }}>
+                {cert.issuer}
+              </p>
+            </div>
+
+            {/* footer: glass button + meta */}
+            <div style={{ position: 'relative', marginTop: 18 }}>
+              <button
+  onClick={(e) => {
+    e.stopPropagation();
+
+    if (cert.credentialUrl) {
+      window.open(cert.credentialUrl, "_blank", "noopener,noreferrer");
+    }
+  }}
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    width: '100%',
+    padding: '11px',
+    borderRadius: 12,
+    fontFamily: 'var(--fn-mono)',
+    fontSize: 12,
+    fontWeight: 600,
+    letterSpacing: '0.03em',
+    color: '#fff',
+    background: 'rgba(255,255,255,0.05)',
+    border: `1px solid ${cert.color}35`,
+    backdropFilter: 'blur(6px)',
+    WebkitBackdropFilter: 'blur(6px)',
+    marginBottom: 12,
+    cursor: cert.credentialUrl ? 'pointer' : 'default',
+  }}
+>
+  View Credential <FiArrowUpRight size={12} />
+</button>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: 'var(--dim)' }}>{cert.date}</span>
+                {isActive && (
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, color: cert.color, opacity: 0.85 }}>
+                    Tap to flip ⟲
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Back */}
-        <div className="cert3d-face cert3d-back" style={{ borderColor: `${cert.color}40`, background: `radial-gradient(ellipse at 50% 30%, ${cert.color}16 0%, transparent 65%), rgba(255,255,255,0.03)` }}>
-          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-            <motion.circle cx="28" cy="28" r="25" stroke={cert.color} strokeWidth="2"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={isActive && isFlipped ? { pathLength: 1, opacity: 0.55 } : { pathLength: 0, opacity: 0 }}
-              transition={{ duration: 0.6, delay: isActive && isFlipped ? 0.25 : 0 }} />
-            <motion.path d="M17 29l7 7 15-15" stroke={cert.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={isActive && isFlipped ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
-              transition={{ duration: 0.45, delay: isActive && isFlipped ? 0.55 : 0 }} />
-          </svg>
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={isActive && isFlipped ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }} transition={{ duration: 0.4, delay: isActive && isFlipped ? 0.7 : 0 }}>
-            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: cert.color, marginBottom: 10 }}>Verified</p>
-            <p style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{cert.title}</p>
-            <p style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 14 }}>{cert.issuer} · {cert.date}</p>
-            <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: 'var(--dim)' }}>Tap to flip back</span>
-          </motion.div>
+        {/* ── Back ── */}
+        <div
+          style={{
+            position: 'absolute', inset: 0, transform: 'rotateY(180deg)',
+            backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+            borderRadius: 22, padding: 1.5,
+            background: `linear-gradient(155deg, ${cert.color}80, ${cert.color}10 40%, rgba(255,255,255,0.06) 100%)`,
+            boxShadow: isActive
+              ? `0 40px 90px -28px ${cert.color}70, 0 0 0 1px ${cert.color}20`
+              : `0 18px 44px -22px rgba(0,0,0,0.65)`,
+          }}
+        >
+          <div style={{
+            position: 'relative', width: '100%', height: '100%', borderRadius: 21, overflow: 'hidden',
+            background: `radial-gradient(ellipse at 50% 20%, ${cert.color}22 0%, transparent 65%), linear-gradient(165deg, rgba(22,24,36,0.94), rgba(10,11,18,0.97))`,
+            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            textAlign: 'center', padding: '30px 26px', gap: 4,
+          }}>
+            <div style={{ position: 'absolute', top: -60, left: -60, width: 180, height: 180, borderRadius: '50%', background: `radial-gradient(circle, ${cert.color}30 0%, transparent 70%)`, filter: 'blur(20px)', pointerEvents: 'none' }} />
+
+            <div style={{
+              width: 64, height: 64, borderRadius: '50%',
+              background: `${cert.color}14`, border: `1px solid ${cert.color}35`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: 6, position: 'relative',
+            }}>
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style={{ position: 'absolute' }}>
+                <motion.circle cx="28" cy="28" r="25" stroke={cert.color} strokeWidth="2"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={isActive && isFlipped ? { pathLength: 1, opacity: 0.55 } : { pathLength: 0, opacity: 0 }}
+                  transition={{ duration: 0.6, delay: isActive && isFlipped ? 0.25 : 0 }} />
+                <motion.path d="M17 29l7 7 15-15" stroke={cert.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={isActive && isFlipped ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
+                  transition={{ duration: 0.45, delay: isActive && isFlipped ? 0.55 : 0 }} />
+              </svg>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={isActive && isFlipped ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+              transition={{ duration: 0.4, delay: isActive && isFlipped ? 0.7 : 0 }}
+              style={{ width: '100%' }}
+            >
+              <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: cert.color, marginBottom: 12 }}>
+                Credential Verified
+              </p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 4, lineHeight: 1.3 }}>{cert.title}</p>
+              <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.5)', marginBottom: 18 }}>{cert.issuer}</p>
+
+              <div style={{
+                display: 'flex', flexDirection: 'column', gap: 8,
+                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 12, padding: '12px 16px', marginBottom: 16, textAlign: 'left',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: 'var(--dim)' }}>Credential ID</span>
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: 'rgba(255,255,255,0.7)' }}>{cert.badge}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: 'var(--dim)' }}>Issued</span>
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: 'rgba(255,255,255,0.7)' }}>{cert.date}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: 'var(--dim)' }}>Status</span>
+                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10.5, color: '#4ade80' }}>● Active</span>
+                </div>
+              </div>
+
+              <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, color: 'var(--dim)' }}>Tap to flip back</span>
+            </motion.div>
+          </div>
         </div>
       </motion.div>
 
-      {isActive && <div className="cert3d-reflection" style={{ background: `linear-gradient(180deg, ${cert.color}30, transparent)` }} />}
+      {isActive && (
+        <div
+          className="cert3d-reflection"
+          style={{ background: `linear-gradient(180deg, ${cert.color}30, transparent)` }}
+        />
+      )}
     </motion.div>
   );
 }
@@ -2810,7 +3132,7 @@ function Certifications() {
           
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(129,140,248,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(129,140,248,0.015) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none', zIndex: 0 }} />
 
-          <div className="ct" style={{ position: 'relative', zIndex: 1, padding: '120px 0' }}>
+          <div className="ct cert-container" style={{ position: 'relative', zIndex: 1 }}>
             <FadeUp>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}>
                 <div>
@@ -2982,15 +3304,15 @@ function Footer() {
             marginBottom: 48,
           }}
         >
-          <a href="https://github.com/yourusername">
+          <a href="https://github.com/sathya-teja">
             <FiGithub size={22} />
           </a>
 
-          <a href="https://linkedin.com/in/yourusername">
+          <a href="https://www.linkedin.com/in/panyam-sathya-teja/">
             <FiLinkedin size={22} />
           </a>
 
-          <a href="mailto:youremail@gmail.com">
+          <a href="mailto:panyamsathyateja@gmail.com">
             <FiMail size={22} />
           </a>
         </div>
