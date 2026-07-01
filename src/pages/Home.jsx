@@ -1,6 +1,6 @@
-﻿import { useState, useEffect ,useLayoutEffect, useRef, useCallback } from 'react';
+import { useState, useEffect ,useLayoutEffect, useRef, useCallback } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring, LayoutGroup, animate, useDragControls } from 'framer-motion';
-import { FiGithub, FiLinkedin, FiMail, FiArrowUpRight, FiDownload, FiPlay, FiCode, FiCpu, FiCloud, FiDatabase,FiChevronLeft,FiChevronRight,FiInstagram, } from 'react-icons/fi';
+import { FiGithub, FiLinkedin, FiMail, FiArrowUpRight, FiDownload, FiPlay, FiCode, FiCpu, FiCloud, FiDatabase,FiChevronLeft,FiChevronRight,FiInstagram, FiBriefcase, FiUsers, FiCheckCircle, FiClock } from 'react-icons/fi';
 import { 
   SiReact, SiNextdotjs, SiJavascript, SiTypescript, SiHtml5, SiCss, SiTailwindcss, SiFramer,
   SiNodedotjs, SiExpress, SiSpringboot, SiGraphql, SiSocketdotio,
@@ -321,15 +321,11 @@ const EXPERIENCE = [
   {
     role: 'Design Team Lead',
     company: 'IEEE Student Branch, NBKRIST',
+    location: 'On-site',
     period: '2025 – Present',
     type: 'Leadership',
     description:
       'Leading the Design Team responsible for creating branding assets, event promotions, social media creatives, and visual identity for IEEE Student Branch activities.',
-    highlights: [
-      'Led the design team for technical and cultural events',
-      'Designed posters, banners, certificates, and social media creatives',
-      'Collaborated with multiple student teams to deliver consistent branding'
-    ],
     tech: [
       'Leadership',
       'Canva',
@@ -338,21 +334,14 @@ const EXPERIENCE = [
       'Design'
     ],
   },
-
-  
-
   {
     role: 'Campus EventHub Development Intern',
     company: 'Infosys Springboard',
+    location: 'Remote',
     period: 'Feb 2026 – Apr 2026',
     type: 'Internship',
     description:
       'Successfully completed Infosys Springboard Internship 6.0 by developing Campus EventHub, a full-stack inter-college event management platform.',
-    highlights: [
-      'Developed a full-stack event management platform',
-      'Implemented authentication and event registration modules',
-      'Completed the mandatory internship project successfully'
-    ],
     tech: [
       'React',
       'Node.js',
@@ -1410,8 +1399,14 @@ function About({ onInViewChange }) {
   }, [layoutInView, onInViewChange]);
 
   return (
-    <section id="about" ref={ref} className="sec" style={{ background: 'rgba(255,255,255,0.012)', position: 'relative' }}>
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(129,140,248,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(129,140,248,0.025) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none' }} />
+    <section id="about" ref={ref} className="sec" style={{ background: 'rgba(255,255,255,0.012)', position: 'relative', overflow: 'hidden' }}>
+      {/* Animated background blobs */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: '10%', right: '5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(129,140,248,0.08) 0%,transparent 70%)', animation: 'aurora2 18s ease-in-out infinite', filter: 'blur(50px)' }} />
+        <div style={{ position: 'absolute', bottom: '10%', left: '-5%', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(110,231,183,0.05) 0%,transparent 70%)', animation: 'aurora 22s ease-in-out infinite reverse', filter: 'blur(60px)' }} />
+      </div>
+
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(129,140,248,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(129,140,248,0.025) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none', zIndex: 0 }} />
       <div className="ct" style={{ position: 'relative', zIndex: 1 }}>
 
         <div className="about-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 0.8fr', gap: '4rem', alignItems: 'start' }}>
@@ -1428,41 +1423,64 @@ function About({ onInViewChange }) {
                 <div style={{ width: 52, height: 3, borderRadius: 2, background: 'linear-gradient(90deg,var(--accent2),var(--accent))' }} />
               </div>
 
-              <p style={{ fontSize: 15, lineHeight: 1.85, color: 'rgba(255,255,255,0.6)', marginBottom: 18 }}>
-                I'm a passionate Full Stack Developer with a love for creating digital experiences that make a difference. With expertise spanning both frontend and backend technologies, I enjoy the challenge of building complete, end-to-end solutions.
+              <p style={{ fontSize: 15, lineHeight: 1.75, color: 'rgba(255,255,255,0.65)', marginBottom: 16 }}>
+                I'm a Computer Science student specializing in building scalable software and intelligent applications. My focus bridges modern web development and analytical AI solutions.
               </p>
-              <p style={{ fontSize: 15, lineHeight: 1.85, color: 'rgba(255,255,255,0.5)', marginBottom: 18 }}>
-                My journey in development started with curiosity and has evolved into a deep commitment to crafting clean, efficient code. I believe in the power of technology to solve real-world problems and am always excited to take on new challenges.
+              <p style={{ fontSize: 15, lineHeight: 1.75, color: 'rgba(255,255,255,0.55)', marginBottom: 26 }}>
+                As a Full Stack Developer and AI enthusiast, I enjoy architecting robust backends, crafting premium interactive frontends, and integrating machine learning to solve complex challenges efficiently.
               </p>
-              <p style={{ fontSize: 15, lineHeight: 1.85, color: 'rgba(255,255,255,0.45)', marginBottom: 32 }}>
-                When I'm not coding, you'll find me exploring new technologies, contributing to open source projects, or sharing knowledge with the developer community.
-              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {/* 4 Animated StatCards Grid */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 16 }} animate={textInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.55, delay: 0.3 }}
+                  style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: 12 }}
+                >
+                  <StatCard label="Projects" value={6} suffix="+" color="var(--accent)" inView={textInView} />
+                  <StatCard label="Leadership" value={2} suffix="" color="var(--accent2)" inView={textInView} />
+                  <StatCard label="Certificates" value={3} suffix="" color="var(--red)" inView={textInView} />
+                  <StatCard label="Technologies" value={25} suffix="+" color="var(--yellow)" inView={textInView} />
+                </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 16 }} animate={textInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.55, delay: 0.3 }}
-                style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 14,
-                  padding: '18px 20px', borderRadius: 12,
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  maxWidth: 460,
-                }}
-              >
-                <div style={{
-                  width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                  background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'var(--fn-mono)', fontSize: 13, color: 'var(--accent2)', fontWeight: 600,
-                }}>
-                  {'</>'}
+                {/* 2 Glass Cards Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 16 }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }} animate={textInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.55, delay: 0.4 }}
+                    style={{
+                      display: 'flex', flexDirection: 'column', gap: 6,
+                      padding: '14px 16px', borderRadius: 12,
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      transition: 'border-color 0.3s, background 0.3s'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.04)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.2)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
+                  >
+                    <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, color: 'var(--accent2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>What I Build</p>
+                    <p style={{ fontSize: 13, lineHeight: 1.5, color: 'rgba(255,255,255,0.45)' }}>
+                      Full Stack Applications, AI & ML Solutions, REST APIs, Interactive UI
+                    </p>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }} animate={textInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.55, delay: 0.5 }}
+                    style={{
+                      display: 'flex', flexDirection: 'column', gap: 6,
+                      padding: '14px 16px', borderRadius: 12,
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      transition: 'border-color 0.3s, background 0.3s'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(110,231,183,0.04)'; e.currentTarget.style.borderColor = 'rgba(110,231,183,0.2)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}
+                  >
+                    <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, color: 'var(--accent)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Current Focus</p>
+                    <p style={{ fontSize: 13, lineHeight: 1.5, color: 'rgba(255,255,255,0.45)' }}>
+                      System Design, Spring Boot, Computer Vision, Large Language Models
+                    </p>
+                  </motion.div>
                 </div>
-                <div>
-                  <p style={{ fontWeight: 600, color: '#fff', marginBottom: 5, fontSize: 14 }}>Full Stack Expertise</p>
-                  <p style={{ fontSize: 13, lineHeight: 1.65, color: 'rgba(255,255,255,0.45)' }}>
-                    Skilled in both frontend and backend technologies like React, Node.js, Express, and MongoDB.
-                  </p>
-                </div>
-              </motion.div>
+              </div>
             </div>
           </FadeUp>
 
@@ -1480,13 +1498,18 @@ function About({ onInViewChange }) {
   );
 }
 
-function StatCard({ label, value, suffix, color, inView }) {
+function StatCard({ label, value, suffix, color, inView, Icon }) {
   const n = useCounter(value, inView);
   return (
-    <div style={{ padding: '22px 18px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: 14, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+    <div 
+      style={{ padding: '22px 18px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: 14, textAlign: 'center', position: 'relative', overflow: 'hidden', transition: 'border-color 0.3s, background 0.3s, transform 0.3s, box-shadow 0.3s' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = `${color}40`; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 12px 30px ${color}15`; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+    >
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
-      <p style={{ fontSize: 34, fontWeight: 700, color, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 6 }}>{n}{suffix}</p>
-      <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, color: 'var(--dim)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>{label}</p>
+      {Icon && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12, color, opacity: 0.8 }}><Icon size={20} /></div>}
+      <p style={{ fontSize: 34, fontWeight: 700, color, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 8 }}>{n}{suffix}</p>
+      <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, color: 'var(--dim)', textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1.4 }}>{label}</p>
     </div>
   );
 }
@@ -2186,9 +2209,12 @@ function Projects() {
 
 // ─── Experience (timeline) ──────────────────────────────────────
 function Experience() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-50px' });
   return (
-    <section id="experience" className="sec" style={{ background: '#080a10', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-      <div className="ct">
+    <section id="experience" ref={ref} className="sec" style={{ background: '#080a10', borderBottom: '1px solid rgba(255,255,255,0.04)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '20%', right: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(129,140,248,0.04) 0%,transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      <div className="ct" style={{ position: 'relative', zIndex: 1 }}>
         <FadeUp>
           <p className="eyebrow" style={{ marginBottom: 20 }}>Career</p>
           <h2 style={{ fontSize: 'clamp(32px,4.5vw,52px)', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '3.5rem' }}>
@@ -2196,28 +2222,47 @@ function Experience() {
           </h2>
         </FadeUp>
 
-        <div style={{ maxWidth: 720 }}>
-          {EXPERIENCE.map((exp, idx) => (
-            <FadeUp key={exp.company} delay={idx * 0.1}>
-              <div className="timeline-line" style={{ paddingBottom: idx === EXPERIENCE.length - 1 ? 0 : 32 }}>
-                <div className="timeline-dot" />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                  <div>
-                    <h3 style={{ fontSize: 18, fontWeight: 600, color: '#fff' }}>{exp.role}</h3>
-                    <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 14, color: 'var(--accent)' }}>{exp.company}</p>
+        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '4rem', alignItems: 'start' }}>
+          <div>
+            {EXPERIENCE.map((exp, idx) => (
+              <FadeUp key={exp.company} delay={idx * 0.1}>
+                <div className="timeline-line" style={{ paddingBottom: idx === EXPERIENCE.length - 1 ? 0 : 38 }}>
+                  <div className="timeline-dot" />
+                  <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent)', flexShrink: 0, fontFamily: 'var(--fn-mono)', fontWeight: 600, fontSize: 18 }}>
+                      {exp.company.charAt(0)}
+                    </div>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <h3 style={{ fontSize: 18, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{exp.role}</h3>
+                        <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 13, color: 'var(--accent)' }}>{exp.company}</p>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, color: 'var(--dim)', whiteSpace: 'nowrap', marginBottom: 4 }}>{exp.period}</p>
+                        <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{exp.location}</p>
+                      </div>
+                    </div>
                   </div>
-                  <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 11, color: 'var(--dim)', whiteSpace: 'nowrap', marginLeft: 16 }}>{exp.period}</span>
+                  <p style={{ fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.45)', marginBottom: 14 }}>{exp.description}</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {exp.tech.map(t => <span key={t} className="chip">{t}</span>)}
+                  </div>
                 </div>
-                <p style={{ fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.45)', marginBottom: 8 }}>{exp.description}</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {exp.tech.map(t => <span key={t} className="chip">{t}</span>)}
-                </div>
+              </FadeUp>
+            ))}
+          </div>
+
+          <div style={{ position: 'sticky', top: 120 }}>
+            <FadeUp delay={0.2}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <StatCard label="Experiences" value={2} suffix="" color="var(--accent)" inView={inView} Icon={FiBriefcase} />
+                <StatCard label="Leadership Roles" value={1} suffix="" color="var(--accent2)" inView={inView} Icon={FiUsers} />
+                <StatCard label="Projects Delivered" value={6} suffix="+" color="var(--red)" inView={inView} Icon={FiCheckCircle} />
+                <StatCard label="Years of Exp" value={1} suffix="+" color="var(--yellow)" inView={inView} Icon={FiClock} />
               </div>
             </FadeUp>
-          ))}
+          </div>
         </div>
-
-       
       </div>
     </section>
   );
@@ -2480,10 +2525,16 @@ function CertCard({ cert, index, x, spacing, cardWidth, cardHeight, isActive, is
 }
 
 function Certifications() {
+  const containerRef = useRef(null);
   const total = CERTIFICATIONS.length;
   const cardWidth = useCertLayout();
   const cardHeight = Math.round(Math.min(380, Math.max(260, cardWidth * 1.18)));
   const spacing = cardWidth * 0.6;
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
 
   const x = useMotionValue(0);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -2502,6 +2553,17 @@ function Certifications() {
     animate(x, -clamped * spacing, { type: 'spring', stiffness: 300, damping: 32, mass: 0.7 });
   }, [spacing, total, x]);
 
+  // Hook vertical scroll to horizontal navigation
+  useEffect(() => {
+    const unsub = scrollYProgress.on('change', v => {
+      const idx = Math.min(total - 1, Math.max(0, Math.round(v * (total - 1))));
+      if (idx !== activeIndexRef.current) {
+        goTo(idx);
+      }
+    });
+    return unsub;
+  }, [scrollYProgress, total, goTo]);
+
   const safe = (fn) => (...args) => { if (Math.abs(dragDistRef.current) > 6) return; fn(...args); };
 
   const handleDragEnd = (e, info) => {
@@ -2515,74 +2577,91 @@ function Certifications() {
   const activeCert = CERTIFICATIONS[activeIndex];
 
   return (
-    <section id="certifications" className="sec" style={{ background: '#0d0f19', position: 'relative', borderBottom: '1px solid rgba(255,255,255,0.04)', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(129,140,248,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(129,140,248,0.015) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none' }} />
-      <div className="ct" style={{ position: 'relative', zIndex: 1 }}>
-        <FadeUp>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}>
-            <div>
-              <p className="eyebrow" style={{ marginBottom: 16 }}>06 — Recognition</p>
-              <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
-                Certifications
-              </h2>
-            </div>
-            <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)', letterSpacing: '0.08em' }}>
-              {String(total).padStart(2, '0')} earned · always growing
-            </p>
+    <section id="certifications" style={{ position: 'relative', background: '#0d0f19' }}>
+      
+      {/* Pinned Scroll Container */}
+      <div ref={containerRef} style={{ height: `${(total + 1) * 60}vh`, position: 'relative' }}>
+        <div className="scenes-pin" style={{ position: 'sticky', top: 0, height: '100dvh', overflow: 'hidden', borderBottom: '1px solid rgba(255,255,255,0.04)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+            {/* Rich Animated Background */}
+            <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(129,140,248,0.08) 0%,transparent 70%)', animation: 'aurora2 18s ease-in-out infinite', filter: 'blur(50px)' }} />
+            <div style={{ position: 'absolute', bottom: '-10%', left: '-5%', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(240,171,252,0.06) 0%,transparent 70%)', animation: 'aurora 22s ease-in-out infinite reverse', filter: 'blur(60px)' }} />
           </div>
           
-        </FadeUp>
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(129,140,248,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(129,140,248,0.015) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none', zIndex: 0 }} />
 
-        <div className="cert-stage-wrap">
-          <div className="cert-ambient" style={{ background: `radial-gradient(ellipse, ${activeCert.color}33 0%, transparent 70%)` }} />
+          <div className="ct" style={{ position: 'relative', zIndex: 1, padding: '120px 0' }}>
+            <FadeUp>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}>
+                <div>
+                  <p className="eyebrow" style={{ marginBottom: 16 }}>06 — Recognition</p>
+                  <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
+                    Certifications
+                  </h2>
+                </div>
+                <p style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)', letterSpacing: '0.08em' }}>
+                  {String(total).padStart(2, '0')} earned · always growing
+                </p>
+              </div>
+            </FadeUp>
 
-          <div className="cert3d-stage" onPointerDown={(e) => dragControls.start(e)}>
-            <motion.div
-              drag="x"
-              dragListener={false}
-              dragControls={dragControls}
-              dragConstraints={{ left: -(total - 1) * spacing, right: 0 }}
-              dragElastic={0.15}
-              onDrag={(e, info) => { dragDistRef.current = info.offset.x; }}
-              onDragEnd={handleDragEnd}
-              style={{ x }}
-              className="cert3d-drag-surface"
-            />
-            {CERTIFICATIONS.map((cert, i) => (
-              <CertCard
-                key={cert.title}
-                cert={cert}
-                index={i}
-                x={x}
-                spacing={spacing}
-                cardWidth={cardWidth}
-                cardHeight={cardHeight}
-                isActive={i === activeIndex}
-                isFlipped={flipped}
-                onFlip={safe(() => setFlipped(f => !f))}
-                onJump={safe(goTo)}
-              />
-            ))}
+            <div className="cert-stage-wrap">
+              <div className="cert-ambient" style={{ background: `radial-gradient(ellipse, ${activeCert.color}33 0%, transparent 70%)` }} />
+
+              <div className="cert3d-stage" onPointerDown={(e) => dragControls.start(e)}>
+                <motion.div
+                  drag="x"
+                  dragListener={false}
+                  dragControls={dragControls}
+                  dragConstraints={{ left: -(total - 1) * spacing, right: 0 }}
+                  dragElastic={0.15}
+                  onDrag={(e, info) => { dragDistRef.current = info.offset.x; }}
+                  onDragEnd={handleDragEnd}
+                  style={{ x }}
+                  className="cert3d-drag-surface"
+                />
+                {CERTIFICATIONS.map((cert, i) => (
+                  <CertCard
+                    key={cert.title}
+                    cert={cert}
+                    index={i}
+                    x={x}
+                    spacing={spacing}
+                    cardWidth={cardWidth}
+                    cardHeight={cardHeight}
+                    isActive={i === activeIndex}
+                    isFlipped={flipped}
+                    onFlip={safe(() => setFlipped(f => !f))}
+                    onJump={safe(goTo)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="cert-nav-row">
+              <button className="cert-nav-btn" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} aria-label="Previous">
+                <FiChevronLeft size={18} />
+              </button>
+              <div className="cert-dots">
+                {CERTIFICATIONS.map((cert, i) => (
+                  <span
+                    key={cert.title}
+                    className={`cert-dot${i === activeIndex ? ' active' : ''}`}
+                    style={i === activeIndex ? { background: cert.color } : undefined}
+                    onClick={() => goTo(i)}
+                  />
+                ))}
+              </div>
+              <button className="cert-nav-btn" onClick={() => goTo(activeIndex + 1)} disabled={activeIndex === total - 1} aria-label="Next">
+                <FiChevronRight size={18} />
+              </button>
+            </div>
+            
+            <div style={{ textAlign: 'center', marginTop: 14 }}>
+              <span className="scene-counter" style={{ opacity: 0.6, fontSize: 10 }}>Scroll to explore</span>
+            </div>
           </div>
-        </div>
-
-        <div className="cert-nav-row">
-          <button className="cert-nav-btn" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} aria-label="Previous">
-            <FiChevronLeft size={18} />
-          </button>
-          <div className="cert-dots">
-            {CERTIFICATIONS.map((cert, i) => (
-              <span
-                key={cert.title}
-                className={`cert-dot${i === activeIndex ? ' active' : ''}`}
-                style={i === activeIndex ? { background: cert.color } : undefined}
-                onClick={() => goTo(i)}
-              />
-            ))}
-          </div>
-          <button className="cert-nav-btn" onClick={() => goTo(activeIndex + 1)} disabled={activeIndex === total - 1} aria-label="Next">
-            <FiChevronRight size={18} />
-          </button>
         </div>
       </div>
     </section>
