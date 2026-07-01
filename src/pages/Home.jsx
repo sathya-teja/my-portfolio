@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect ,useLayoutEffect, useRef, useCallback } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring, LayoutGroup, animate, useDragControls } from 'framer-motion';
-import { FiGithub, FiLinkedin, FiMail, FiArrowUpRight, FiDownload, FiPlay, FiCode, FiCpu, FiCloud, FiDatabase,FiChevronLeft,FiChevronRight } from 'react-icons/fi';
+import { FiGithub, FiLinkedin, FiMail, FiArrowUpRight, FiDownload, FiPlay, FiCode, FiCpu, FiCloud, FiDatabase,FiChevronLeft,FiChevronRight,FiInstagram, } from 'react-icons/fi';
 import { 
   SiReact, SiNextdotjs, SiJavascript, SiTypescript, SiHtml5, SiCss, SiTailwindcss, SiFramer,
   SiNodedotjs, SiExpress, SiSpringboot, SiGraphql, SiSocketdotio,
@@ -8,6 +8,14 @@ import {
   SiPython, SiOpencv, SiNumpy, SiPandas, SiScikitlearn, SiTensorflow,
   SiDocker, SiGit, SiLinux, SiPostman,
 } from 'react-icons/si';
+import campusEventHubImg from '../assets/images/campus-event-hub.png';
+import medigoImg from '../assets/images/medigo.png';
+import medigoAdminImg from '../assets/images/medigo-admin.png';
+import heartSenseAIImg from '../assets/images/heartsense.png';
+import fashionStoreImg from '../assets/images/fashion-store.png';
+import ieeeImg from '../assets/images/ieee.png';
+import sathyaImg from '../assets/images/sathyateja.jpeg';
+
 
 // ─── Math Utils ──────────────────────────────────────────────────
 function clampedSegmentInput(start, end, total) {
@@ -22,44 +30,59 @@ const SKILLS = [
     title: 'Frontend',
     accent: '#6ee7b7',
     bgWord: 'FRONTEND',
-    description: 'Crafting immersive, responsive, and high-performance user interfaces with modern web technologies.',
-    primaryStack: ['React.js', 'Next.js', 'Tailwind CSS', 'Framer Motion'],
+    description:
+      'Building responsive, interactive, and immersive web experiences with modern frontend technologies.',
+    primaryStack: [
+      'React.js',
+      'JavaScript',
+      'Tailwind CSS',
+      'Framer Motion'
+    ],
     tech: [
       { name: 'React.js', Icon: SiReact },
-      { name: 'Next.js', Icon: SiNextdotjs },
       { name: 'JavaScript', Icon: SiJavascript },
-      { name: 'TypeScript', Icon: SiTypescript },
       { name: 'HTML5', Icon: SiHtml5 },
       { name: 'CSS3', Icon: SiCss },
       { name: 'Tailwind CSS', Icon: SiTailwindcss },
       { name: 'Framer Motion', Icon: SiFramer }
     ]
   },
+
   {
     id: 'backend',
     title: 'Backend',
     accent: '#818cf8',
     bgWord: 'BACKEND',
-    description: 'Designing scalable server-side architectures and secure APIs that power real-world applications.',
-    primaryStack: ['Node.js', 'Express.js', 'Spring Boot', 'MongoDB'],
+    description:
+      'Designing scalable backend systems, RESTful APIs, authentication, and database-driven applications.',
+    primaryStack: [
+      'Node.js',
+      'Express.js',
+      'MongoDB',
+      'MySQL'
+    ],
     tech: [
       { name: 'Node.js', Icon: SiNodedotjs },
       { name: 'Express.js', Icon: SiExpress },
-      { name: 'Spring Boot', Icon: SiSpringboot },
       { name: 'REST APIs', Icon: FiCode },
       { name: 'MongoDB', Icon: SiMongodb },
       { name: 'MySQL', Icon: SiMysql },
-      { name: 'Firebase', Icon: SiFirebase },
-      { name: 'Socket.io', Icon: SiSocketdotio }
+      { name: 'Spring Boot', Icon: SiSpringboot }
     ]
   },
+
   {
     id: 'ai',
     title: 'AI / Computer Vision',
     accent: '#f87171',
     bgWord: 'VISION',
-    description: 'Building intelligent systems capable of understanding gestures, images, and real-world interactions.',
-    primaryStack: ['Python', 'OpenCV', 'MediaPipe', 'TensorFlow'],
+    description:
+      'Building intelligent applications using machine learning, computer vision, and AI integrations.',
+    primaryStack: [
+      'Python',
+      'OpenCV',
+      'MediaPipe'
+    ],
     featuredProject: 'Gesture Controlled Virtual Mouse',
     tech: [
       { name: 'Python', Icon: SiPython },
@@ -67,195 +90,304 @@ const SKILLS = [
       { name: 'MediaPipe', Icon: FiCpu },
       { name: 'NumPy', Icon: SiNumpy },
       { name: 'Pandas', Icon: SiPandas },
-      { name: 'Scikit-learn', Icon: SiScikitlearn },
-      { name: 'TensorFlow', Icon: SiTensorflow }
+      { name: 'Scikit-learn', Icon: SiScikitlearn }
     ]
   },
+
   {
     id: 'devops',
-    title: 'Dev Workflow',
+    title: 'Development Workflow',
     accent: '#38bdf8',
     bgWord: 'WORKFLOW',
-    description: 'Leveraging modern tools and cloud platforms to build, test, deploy, and maintain reliable software.',
-    primaryStack: ['Git', 'Docker', 'Linux', 'Postman'],
+    description:
+      'Using modern development tools, version control, testing, and deployment platforms to build reliable software.',
+    primaryStack: [
+      'Git',
+      'Docker',
+      'Linux',
+      'Postman'
+    ],
     tech: [
       { name: 'Git', Icon: SiGit },
       { name: 'Docker', Icon: SiDocker },
       { name: 'Linux', Icon: SiLinux },
       { name: 'Postman', Icon: SiPostman },
-      { name: 'Azure', Icon: FiCloud },
-      { name: 'GraphQL', Icon: SiGraphql }
+      { name: 'GitHub', Icon: FiGithub },
+      { name: 'Cloud', Icon: FiCloud }
     ]
   },
+
   {
     id: 'learning',
     title: 'Currently Exploring',
     accent: '#a78bfa',
-    bgWord: 'GROWING',
-    description: 'Continuously expanding my engineering capabilities to stay current with industry trends.',
-    primaryStack: ['System Design', 'LLMs & AI Agents', 'Spring Boot', 'Cloud'],
+    bgWord: 'LEARNING',
+    description:
+      'Continuously expanding my engineering skills through hands-on learning and real-world experimentation.',
+    primaryStack: [
+      'Spring Boot',
+      'System Design',
+      'LLMs',
+      'Cloud'
+    ],
     tech: [
+      { name: 'Spring Boot', Icon: SiSpringboot },
       { name: 'System Design', Icon: FiCpu },
       { name: 'LLMs', Icon: FiCode },
-      { name: 'AI Agents', Icon: FiCpu },
-      { name: 'Spring Boot', Icon: SiSpringboot },
-      { name: 'Cloud Tech', Icon: FiCloud },
-      { name: 'Advanced CV', Icon: SiOpencv }
+      { name: 'Cloud', Icon: FiCloud },
+      { name: 'Computer Vision', Icon: SiOpencv }
     ]
   }
 ];
 
 const PROJECTS = [
   {
-    id: 'ieeesb',
-    title: 'IEEE SB NBKRIST Website',
-    subtitle: 'Web Development',
-    year: '2024',
-    description: 'Responsive student branch website built collaboratively to showcase events, team, and updates. Integrated Chart.js for analytics and optimized performance.',
-    features: ['Responsive design', 'Team and events showcase', 'Chart.js analytics integration', 'Optimized performance'],
-    tech: ['HTML5', 'CSS3', 'JavaScript (ES6+)', 'Chart.js'],
-    github: 'https://github.com/',
-    demo: 'https://github.com/',
-    accent: '#3b82f6',
-    accent2: '#60a5fa',
-    glyph: '🎓',
-    bgWord: 'IEEE',
-    image: '',
+    id: 'campus-event-hub',
+    title: 'Campus Event Hub',
+    subtitle: 'Full-Stack Event Management Platform',
+    year: '2025',
+    description:
+      'A modern campus event management platform that enables students to discover, register for, and manage technical and cultural events through an intuitive interface.',
+    features: [
+      'Event discovery and registration',
+      'Role-based authentication',
+      'Real-time event management',
+      'Responsive modern UI'
+    ],
+    tech: [
+      'React.js',
+      'Node.js',
+      'Express.js',
+      'MongoDB',
+      'Tailwind CSS'
+    ],
+    github: 'https://github.com/sathya-teja/Campus-Event-Hub', // TODO
+    demo: 'https://campus-event-hub-nu.vercel.app/', // TODO
+    accent: '#8b5cf6',
+    accent2: '#a855f7',
+    glyph: '🎉',
+    bgWord: 'EVENTS',
+    image: campusEventHubImg
   },
+
+  {
+    id: 'medigo-web',
+    title: 'Medigo – Doctor Appointment Booking',
+    subtitle: 'Healthcare · Full Stack',
+    year: '2025',
+    description:
+      'A full-stack healthcare platform that streamlines doctor appointment booking with secure authentication, appointment scheduling, and an intuitive user experience.',
+    features: [
+      'Doctor appointment booking',
+      'Authentication & authorization',
+      'RESTful APIs',
+      'Responsive healthcare dashboard'
+    ],
+    tech: [
+      'React.js',
+      'Node.js',
+      'Express.js',
+      'MongoDB',
+      'Tailwind CSS',
+      'Axios'
+    ],
+    github: 'https://github.com/sathya-teja/MEDIGO',
+demo: 'https://medigo-frontend.onrender.com/',
+    accent: '#0ea5e9',
+    accent2: '#38bdf8',
+    glyph: '⚕',
+    bgWord: 'MEDIGO',
+    image: medigoImg
+  },
+
+  {
+    id: 'medigo-admin',
+    title: 'Medigo – Admin Dashboard',
+    subtitle: 'Healthcare Administration',
+    year: '2025',
+    description:
+      'Administrative dashboard for managing doctors, patients, appointments, and healthcare operations through a centralized interface.',
+    features: [
+      'Doctor management',
+      'Patient management',
+      'Appointment tracking',
+      'Secure admin access'
+    ],
+    tech: [
+      'React.js',
+      'Node.js',
+      'Express.js',
+      'MongoDB',
+      'Tailwind CSS'
+    ],
+    github: 'https://github.com/sathya-teja/MEDIGO',
+demo: 'https://medigo-admin.onrender.com/',
+    accent: '#f59e0b',
+    accent2: '#fbbf24',
+    glyph: '📊',
+    bgWord: 'ADMIN',
+    image: medigoAdminImg
+  },
+
   {
     id: 'heart',
     title: 'Heart Disease Prediction',
     subtitle: 'Machine Learning',
     year: '2025',
-    description: 'ML web app that predicts heart disease risk using clinical inputs. Includes model training pipeline and on-page inference.',
-    features: ['Clinical input analysis', 'On-page inference', 'Model training pipeline', 'High accuracy prediction'],
-    tech: ['Python', 'scikit-learn', 'Pandas', 'NumPy', 'Streamlit', 'Joblib'],
-    github: 'https://github.com/',
-    demo: 'https://github.com/',
+    description:
+      'Machine learning application that predicts heart disease risk using patient clinical parameters and a trained classification model.',
+    features: [
+      'Clinical data analysis',
+      'Machine learning prediction',
+      'Interactive web interface',
+      'Real-time inference'
+    ],
+    tech: [
+      'Python',
+      'Scikit-learn',
+      'Pandas',
+      'NumPy',
+      'Flask'
+    ],
+    github: 'https://github.com/sathya-teja/heart_disease_prediction2',
+demo: 'https://heartsense-ai-oaqg.onrender.com/',
     accent: '#ef4444',
     accent2: '#f87171',
-    glyph: '❤',
-    bgWord: 'PREDICT',
-    image: '',
+    glyph: '❤️',
+    bgWord: 'HEALTH',
+    image: heartSenseAIImg
   },
-  {
-    id: 'zoro',
-    title: 'ZORO AI',
-    subtitle: 'AI Chatbot',
-    year: '2024',
-    description: 'Lightweight chatbot built with Gemini API and React, designed with a clean UI to enhance user interaction.',
-    features: ['Gemini API integration', 'Real-time conversational UI', 'Clean lightweight design', 'Enhanced user interaction'],
-    tech: ['React.js', 'HTML5', 'CSS3', 'JavaScript (ES6+)', 'Tailwind CSS', 'Axios'],
-    github: 'https://github.com/',
-    demo: 'https://github.com/',
-    accent: '#8b5cf6',
-    accent2: '#a855f7',
-    glyph: '🤖',
-    bgWord: 'ZORO',
-    image: '',
-  },
-  {
-    id: 'itasks',
-    title: 'iTasks App',
-    subtitle: 'Productivity',
-    year: '2024',
-    description: 'Modern productivity app to manage tasks efficiently with a clean interface and local storage support.',
-    features: ['Task management', 'Clean modern interface', 'Local storage persistence', 'Efficient workflows'],
-    tech: ['React.js', 'Tailwind CSS', 'Local Storage'],
-    github: 'https://github.com/',
-    demo: 'https://github.com/',
-    accent: '#10b981',
-    accent2: '#34d399',
-    glyph: '✓',
-    bgWord: 'TASKS',
-    image: '',
-  },
+
   {
     id: 'fashion',
-    title: 'Fashion Store – E-commerce',
-    subtitle: 'E-Commerce · Full-Stack',
+    title: 'Fashion Store',
+    subtitle: 'E-Commerce · Full Stack',
     year: '2025',
-    description: 'Responsive fashion e-commerce app with product catalog, cart, and checkout. Clean UI and optimized filtering/sorting.',
-    features: ['Product catalog and cart', 'Secure checkout', 'Optimized filtering and sorting', 'Responsive clean UI'],
-    tech: ['React.js', 'Tailwind CSS', 'Redux Toolkit', 'Node.js', 'Express.js', 'MongoDB', 'Stripe'],
-    github: 'https://github.com/',
-    demo: 'https://github.com/',
+    description:
+      'A responsive e-commerce application featuring product browsing, shopping cart, filtering, checkout, and secure order management.',
+    features: [
+      'Product catalog',
+      'Shopping cart',
+      'Filtering & sorting',
+      'Responsive design'
+    ],
+    tech: [
+      'React.js',
+      'Node.js',
+      'Express.js',
+      'MongoDB',
+      'Tailwind CSS',
+      
+    ],
+    github: 'https://github.com/sathya-teja/fashion-store',
+demo: 'https://fashion-store-heo5.onrender.com/',
     accent: '#f43f5e',
     accent2: '#fb7185',
     glyph: '🛍',
     bgWord: 'STORE',
-    image: '',
+    image: fashionStoreImg
   },
+
   {
-    id: 'medigo-web',
-    title: 'Medigo – Doctor Appointment Booking Website',
-    subtitle: 'Healthcare · Full-Stack',
-    year: '2025',
-    description: 'Full-stack doctor appointment booking app with RESTful APIs, optimized booking flow, and user friendly UI.',
-    features: ['RESTful APIs', 'Optimized booking flow', 'User friendly interface', 'Doctor scheduling'],
-    tech: ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'Tailwind CSS', 'Axios', 'Render'],
-    github: 'https://github.com/',
-    demo: 'https://github.com/',
-    accent: '#0ea5e9',
-    accent2: '#38bdf8',
-    glyph: '⚕',
-    bgWord: 'MEDIGO',
-    image: './public/medigo.png',
-  },
-  {
-    id: 'medigo-admin',
-    title: 'MediGo – Admin Dashboard',
-    subtitle: 'Healthcare · Admin Portal',
-    year: '2025',
-    description: 'Admin portal for managing doctors, patients, and appointments with secure access and real-time updates.',
-    features: ['Doctor & patient management', 'Appointment tracking', 'Secure access', 'Real-time updates'],
-    tech: ['React.js', 'Tailwind CSS', 'Node.js', 'Express.js', 'MongoDB'],
-    github: 'https://github.com/',
-    demo: 'https://github.com/',
-    accent: '#f59e0b',
-    accent2: '#fbbf24',
-    glyph: '📊',
-    bgWord: 'ADMIN',
-    image: '',
-  },
+    id: 'ieeesb',
+    title: 'IEEE SB NBKRIST Website',
+    subtitle: 'Student Branch Website',
+    year: '2024',
+    description:
+      'Official website developed for the IEEE Student Branch to showcase events, team members, announcements, and student activities.',
+    features: [
+      'Responsive website',
+      'Event showcase',
+      'Team management',
+      'Performance optimized'
+    ],
+    tech: [
+      'HTML5',
+      'CSS3',
+      'JavaScript',
+      'Chart.js'
+    ],
+    github: null, // Collaborative project (no verified public GitHub repository)
+demo: 'https://ieeesbnbkrist2k24.netlify.app/',
+    accent: '#3b82f6',
+    accent2: '#60a5fa',
+    glyph: '🎓',
+    bgWord: 'IEEE',
+    image: ieeeImg
+  }
 ];
 
 const EXPERIENCE = [
   {
-    role: 'Software Development Intern',
-    company: 'Vibrance AI',
-    period: '2024',
-    type: 'Internship',
-    description: 'Built scalable React components and integrated ML model APIs into production. Reduced page load time by 40% and improved CI/CD pipeline.',
-    highlights: ['Built React components reducing load time 40%', 'Integrated AI/ML APIs with frontend', 'Collaborated with 12-person engineering team'],
-    tech: ['React', 'Python', 'REST APIs', 'Git'],
-  },
-  {
-    role: 'Web Development Intern',
-    company: 'Codesoft',
-    period: '2023',
-    type: 'Internship',
-    description: 'Developed 3 production web apps, implemented JWT auth, and optimized DB queries for a 60% performance gain.',
-    highlights: ['Developed 3 production web apps from scratch', 'Implemented JWT authentication systems', 'Optimized DB queries improving performance 60%'],
-    tech: ['JavaScript', 'React', 'Node.js', 'MongoDB'],
-  },
-  {
-    role: 'Technical Committee Member',
-    company: 'IEEE Student Branch',
-    period: '2022–Present',
+    role: 'Design Team Lead',
+    company: 'IEEE Student Branch, NBKRIST',
+    period: '2025 – Present',
     type: 'Leadership',
-    description: 'Organized 5+ workshops for 200+ students, led IEEE Xtreme Programming team, mentored 20+ junior members.',
-    highlights: ['Organized 5+ workshops for 200+ students', 'Led team at IEEE Xtreme Programming', 'Mentored 20+ junior members'],
-    tech: ['Leadership', 'Technical Writing', 'Event Management'],
+    description:
+      'Leading the Design Team responsible for creating branding assets, event promotions, social media creatives, and visual identity for IEEE Student Branch activities.',
+    highlights: [
+      'Led the design team for technical and cultural events',
+      'Designed posters, banners, certificates, and social media creatives',
+      'Collaborated with multiple student teams to deliver consistent branding'
+    ],
+    tech: [
+      'Leadership',
+      'Canva',
+      'Figma',
+      'Branding',
+      'Design'
+    ],
+  },
+
+  
+
+  {
+    role: 'Campus EventHub Development Intern',
+    company: 'Infosys Springboard',
+    period: 'Feb 2026 – Apr 2026',
+    type: 'Internship',
+    description:
+      'Successfully completed Infosys Springboard Internship 6.0 by developing Campus EventHub, a full-stack inter-college event management platform.',
+    highlights: [
+      'Developed a full-stack event management platform',
+      'Implemented authentication and event registration modules',
+      'Completed the mandatory internship project successfully'
+    ],
+    tech: [
+      'React',
+      'Node.js',
+      'Express.js',
+      'MongoDB',
+      'Tailwind CSS'
+    ],
   },
 ];
 
 const CERTIFICATIONS = [
-  { title: 'Azure AI Fundamentals', issuer: 'Microsoft', badge: 'AI-900', date: '2024', color: '#0ea5e9', icon: '☁️' },
-  { title: 'Programming in Java', issuer: 'NPTEL — IIT', badge: 'Elite', date: '2023', color: '#f59e0b', icon: '☕' },
-  { title: 'Python for Data Science', issuer: 'NPTEL — IIT', badge: 'Elite', date: '2023', color: '#3b82f6', icon: '🐍' },
-  { title: 'Responsive Web Design', issuer: 'freeCodeCamp', badge: 'Certified', date: '2023', color: '#10b981', icon: '🎨' },
-  { title: 'Joy of Computing with Python', issuer: 'NPTEL — IIT', badge: 'Certified', date: '2022', color: '#8b5cf6', icon: '🎓' },
+  {
+    title: 'Microsoft Certified: Azure AI Fundamentals',
+    issuer: 'Microsoft',
+    badge: 'AI-900',
+    date: '2025',
+    color: '#0ea5e9',
+    icon: '☁️'
+  },
+  {
+    title: 'Artificial Intelligence Fundamentals',
+    issuer: 'IBM SkillsBuild',
+    badge: 'Certified',
+    date: '2025',
+    color: '#2563eb',
+    icon: '🤖'
+  },
+  {
+    title: 'Privacy and Security in Online Social Media',
+    issuer: 'NPTEL',
+    badge: 'Elite',
+    date: '2024',
+    color: '#8b5cf6',
+    icon: '🔒'
+  }
 ];
 
 const NAV = ['Home', 'About', 'Skills', 'Projects', 'Experience', 'Certifications', 'Contact'];
@@ -984,7 +1116,12 @@ function Hero({ aboutInView }) {
   const mx = (mouse.x - bounds.x) / bounds.w - 0.5;
   const my = (mouse.y - bounds.y) / bounds.h - 0.5;
 
-  const ROLES = ['Full-Stack Developer', 'AI / CV Engineer', 'Software Engineer', 'Open Source Enthusiast'];
+const ROLES = [
+  'Full Stack Developer',
+  'AI & Computer Vision Enthusiast',
+  'Java Backend Developer',
+  'Problem Solver'
+];
   const [ri, setRi] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setRi(i => (i + 1) % ROLES.length), 3000);
@@ -1093,9 +1230,9 @@ function Hero({ aboutInView }) {
               style={{ display: 'flex', gap: 22, marginTop: 42, alignItems: 'center', paddingTop: 32, borderTop: '1px solid var(--border)' }}>
               <span style={{ fontFamily: 'var(--fn-mono)', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--dim)' }}>Find me</span>
               {[
-                { Icon: FiGithub, href: 'https://github.com/', label: 'GitHub' },
-                { Icon: FiLinkedin, href: 'https://linkedin.com/', label: 'LinkedIn' },
-                { Icon: FiMail, href: 'mailto:hello@sathyateja.dev', label: 'Email' },
+                { Icon: FiGithub, href: 'href="https://github.com/sathya-teja"', label: 'GitHub' },
+                { Icon: FiLinkedin, href: 'https://www.linkedin.com/in/panyam-sathya-teja', label: 'LinkedIn' },
+                { Icon: FiMail,href:'mailto:panyamsathyateja@gmail.com', label: 'Email' },
               ].map(({ Icon, href, label }) => (
                 <a key={label} href={href} aria-label={label} target="_blank" rel="noopener noreferrer"
                   style={{ color: 'var(--dim)', transition: 'color 0.2s, transform 0.2s', display: 'inline-block' }}
@@ -1230,7 +1367,7 @@ function PhotoCard({ inHero, mx = 0, my = 0 }) {
           style={{ borderRadius: 16, overflow: 'hidden', aspectRatio: '4/4.5', background: '#151822' }}
         >
           <img
-            src="https://sathyateja.portfolio.netlify.app/static/media/hero.ce98ac9e31f03b8f3c4c.jpg"
+            src={sathyaImg}
             alt="Sathya Teja"
             style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }}
             onError={e => {
@@ -1843,46 +1980,111 @@ function ProjectScene({ p, index, total, scrollYProgress }) {
             }}>
               {p.title}
             </motion.h3>
-            <p className="project-scene-year" style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)', marginBottom: 22 }}>{p.year}</p>
+            <p className="project-scene-year" style={{ fontFamily: 'var(--fn-mono)', fontSize: 12, color: 'var(--dim)', marginBottom: 15 }}>{p.year}</p>
 
-            <motion.p className="project-scene-desc" style={{ y: descY, opacity: descO, fontSize: 16, lineHeight: 1.8, color: 'rgba(255,255,255,0.55)', maxWidth: 480, marginBottom: 22 }}>
+            <motion.p className="project-scene-desc" style={{ y: descY, opacity: descO, fontSize: 16, lineHeight: 1.8, color: 'rgba(255,255,255,0.55)', maxWidth: 480, marginBottom: 10 }}>
               {p.description}
             </motion.p>
 
-            <motion.div className="scene-features project-scene-features" style={{ y: featY, opacity: featO, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
+            {/* <motion.div className="scene-features project-scene-features" style={{ y: featY, opacity: featO, display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 26 }}>
               {p.features.map(f => (
                 <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                   <span style={{ width: 5, height: 5, borderRadius: '50%', background: p.accent, marginTop: 8, flexShrink: 0 }} />
                   <span style={{ fontSize: 13.5, lineHeight: 1.6, color: 'rgba(255,255,255,0.5)' }}>{f}</span>
                 </div>
               ))}
-            </motion.div>
+            </motion.div> */}
+            <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 10,
+  }}
+>
+  <span
+    style={{
+      width: 22,
+      height: 1,
+      background: p.accent,
+      opacity: 0.5,
+    }}
+  />
+  <span
+    style={{
+      fontFamily: "var(--fn-mono)",
+      fontSize: 11,
+      letterSpacing: "0.22em",
+      textTransform: "uppercase",
+      color: "rgba(255,255,255,.55)",
+    }}
+  >
+    Tech Stack
+  </span>
+</div>
 
-            <motion.div className="project-scene-tech" style={{ opacity: featO, display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 30, justifyContent: 'inherit', alignContent: 'flex-start' }}>
+            <motion.div className="project-scene-tech" style={{ opacity: featO, display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10, justifyContent: 'inherit', alignContent: 'flex-start' }}>
               {p.tech.map(t => <span key={t} className="chip">{t}</span>)}
             </motion.div>
 
-            <motion.div className="project-scene-actions" style={{ y: btnY, opacity: btnO, display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'inherit' }}>
-              <a href={p.demo} target="_blank" rel="noopener noreferrer" className="scene-link-btn"
-                style={{ background: p.accent, color: '#060912' }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = `0 8px 28px ${p.accent}45`}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
-              >
-                <FiPlay size={13} /> Live Demo
-              </a>
-              <a href={p.github} target="_blank" rel="noopener noreferrer" className="scene-link-btn"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-hi)', color: 'rgba(255,255,255,0.8)' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = p.accent}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-hi)'}
-              >
-                <FiGithub size={13} /> Source Code
-              </a>
-            </motion.div>
+            <motion.div
+  className="project-scene-actions"
+  style={{
+    y: btnY,
+    opacity: btnO,
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 12,
+    justifyContent: "inherit",
+  }}
+>
+  {p.demo && (
+    <a
+      href={p.demo}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="scene-link-btn"
+      style={{ background: p.accent, color: "#060912" }}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.boxShadow = `0 8px 28px ${p.accent}45`)
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.boxShadow = "none")
+      }
+    >
+      <FiPlay size={13} />
+      Live Demo
+    </a>
+  )}
+
+  {p.github && (
+    <a
+      href={p.github}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="scene-link-btn"
+      style={{
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid var(--border-hi)",
+        color: "rgba(255,255,255,0.8)",
+      }}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.borderColor = p.accent)
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.borderColor = "var(--border-hi)")
+      }
+    >
+      <FiGithub size={13} />
+      Source Code
+    </a>
+  )}
+</motion.div>
           </motion.div>
 
           {/* Mid layer: mockup, camera-panned in 3D */}
           <motion.div className="scene-visual" style={{ y: midY, rotateY: midRotateY, scale: midScale, perspective: 1400, transformStyle: 'preserve-3d' }}>
-            <div className="scene-mock" style={{ maxWidth: 460, margin: '0 auto' }}>
+            <div className="scene-mock" style={{ maxWidth: 560, margin: '0 auto' }}>
               <div className="scene-mock-bar">
                 <span className="scene-mock-dot" style={{ background: '#ff5f57' }} />
                 <span className="scene-mock-dot" style={{ background: '#febc2e' }} />
@@ -1892,7 +2094,7 @@ function ProjectScene({ p, index, total, scrollYProgress }) {
                 </span>
               </div>
               <div style={{
-                aspectRatio: '16/11',
+                aspectRatio: '16/9',
                 background: `radial-gradient(circle at 30% 20%, ${p.accent}2a, transparent 55%), linear-gradient(155deg, ${p.accent}10, #060912 70%)`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 position: 'relative', overflow: 'hidden',
