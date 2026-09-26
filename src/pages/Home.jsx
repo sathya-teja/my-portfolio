@@ -2599,7 +2599,7 @@ function Experience() {
                 <StatCard label="Experiences" value={2} suffix="" color="var(--accent)" inView={inView} Icon={FiBriefcase} />
                 <StatCard label="Leadership Roles" value={1} suffix="" color="var(--accent2)" inView={inView} Icon={FiUsers} />
                 <StatCard label="Projects Delivered" value={6} suffix="+" color="var(--red)" inView={inView} Icon={FiCheckCircle} />
-                <StatCard label="Years of Exp" value={1} suffix="+" color="var(--yellow)" inView={inView} Icon={FiClock} />
+                <StatCard label="Years of Exp" value={3} suffix="mo" color="var(--yellow)" inView={inView} Icon={FiClock} />
               </div>
             </FadeUp>
           </div>
