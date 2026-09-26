@@ -326,8 +326,8 @@ const EXPERIENCE = [
   {
     role: 'Design Team Lead',
     company: 'IEEE Student Branch, NBKRIST',
-    location: 'On-site',
-    period: '2025 – Present',
+    location: 'College',
+    period: 'Jan 2025 – Dec 2025',
     type: 'Leadership',
     description:
       'Leading the Design Team responsible for creating branding assets, event promotions, social media creatives, and visual identity for IEEE Student Branch activities.',
