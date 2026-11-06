@@ -15,7 +15,7 @@ import medigoAdminImg from '../assets/images/medigo-admin.png';
 import heartSenseAIImg from '../assets/images/heartsense.png';
 import fashionStoreImg from '../assets/images/fashion-store.png';
 import ieeeImg from '../assets/images/ieee.png';
-import sathyaImg from '../assets/images/sathyateja.jpeg';
+import sathyaImg from '../assets/images/sathya1.png';
 import azureLogo from '../assets/images/azure.jpg';
 import ibmLogo from '../assets/images/ibm.png';
 import nptelLogo from '../assets/images/nptel.png';
